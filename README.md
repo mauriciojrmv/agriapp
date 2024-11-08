@@ -9,7 +9,7 @@ Asegúrate de tener instalados los siguientes programas:
 - [PHP](https://www.php.net/downloads) (versión 8.0 o superior)
 - [Composer](https://getcomposer.org/download/)
 - [MySQL](https://dev.mysql.com/downloads/mysql/) o [MariaDB](https://mariadb.org/download/)
-- [Laravel](https://laravel.com/docs/9.x/installation) (opcional, para el entorno de desarrollo)
+- [Laravel](https://laravel.com/docs/9.x/installation) (opcional, para el entorno de desarrollo estoy ocupando 9.*)
 - [Postman](https://www.postman.com/downloads/) (para realizar pruebas de la API)
 
 ## Instalación
