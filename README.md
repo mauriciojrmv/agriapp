@@ -16,7 +16,7 @@ Asegúrate de tener instalados los siguientes programas:
 
 1. **Clona el repositorio:**
 
-   git clone https://github.com/mauriciojrmv/agricultorapp.git
+   git clone https://github.com/mauriciojrmv/agriapp 
 
 2. **Accede a la carpeta del proyecto:**
 
