@@ -2,84 +2,85 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UnidadMedida;
 use Illuminate\Http\Request;
+use App\Models\UnidadMedida;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 
 class UnidadMedidaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Obtener todas las unidades de medida
     public function index()
     {
-        //
+        return response()->json(UnidadMedida::all(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Crear una nueva unidad de medida
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'nombre' => 'required|string|max:255|unique:unidad_medidas,nombre',
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'nombre.unique' => 'El nombre de la unidad de medida ya existe.'
+            ]);
+
+            $unidadMedida = UnidadMedida::create($request->all());
+            return response()->json($unidadMedida, 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\UnidadMedida  $unidadMedida
-     * @return \Illuminate\Http\Response
-     */
-    public function show(UnidadMedida $unidadMedida)
+    // Mostrar detalles de una unidad de medida específica
+    public function show($id)
     {
-        //
+        try {
+            $unidadMedida = UnidadMedida::findOrFail($id);
+            return response()->json($unidadMedida, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Unidad de medida no encontrada'], 404);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\UnidadMedida  $unidadMedida
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(UnidadMedida $unidadMedida)
+    // Actualizar datos de una unidad de medida
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $unidadMedida = UnidadMedida::findOrFail($id);
+
+            $request->validate([
+                'nombre' => 'sometimes|required|string|max:255|unique:unidad_medidas,nombre,' . $id,
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'nombre.unique' => 'El nombre de la unidad de medida ya existe.'
+            ]);
+
+            $unidadMedida->update($request->all());
+            return response()->json($unidadMedida, 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Unidad de medida no encontrada'], 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\UnidadMedida  $unidadMedida
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, UnidadMedida $unidadMedida)
+    // Eliminar una unidad de medida
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\UnidadMedida  $unidadMedida
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(UnidadMedida $unidadMedida)
-    {
-        //
+        try {
+            $unidadMedida = UnidadMedida::findOrFail($id);
+            $unidadMedida->delete();
+            return response()->json(['message' => 'Unidad de medida eliminada correctamente'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Unidad de medida no encontrada'], 404);
+        }
     }
 }

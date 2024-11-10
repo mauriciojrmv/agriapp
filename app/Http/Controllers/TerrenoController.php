@@ -2,84 +2,124 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Terreno;
 use Illuminate\Http\Request;
+use App\Models\Terreno;
+use App\Models\Produccion;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 
 class TerrenoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Obtener todos los terrenos
     public function index()
     {
-        //
+        return response()->json(Terreno::all(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Crear un nuevo terreno
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'id_agricultor' => 'required|exists:agricultors,id',
+                'descripcion' => 'required|string|max:255',
+                'area' => 'required|numeric|min:0',
+                'superficie_total' => 'required|numeric|min:0',
+                'ubicacion_latitud' => 'required|numeric',
+                'ubicacion_longitud' => 'required|numeric'
+            ], [
+                'id_agricultor.required' => 'El campo id_agricultor es obligatorio.',
+                'id_agricultor.exists' => 'El agricultor especificado no existe.',
+                'descripcion.required' => 'El campo descripción es obligatorio.',
+                'area.required' => 'El campo área es obligatorio.',
+                'area.numeric' => 'El campo área debe ser un número.',
+                'superficie_total.required' => 'El campo superficie total es obligatorio.',
+                'superficie_total.numeric' => 'El campo superficie total debe ser un número.',
+                'ubicacion_latitud.required' => 'La latitud de ubicación es obligatoria.',
+                'ubicacion_longitud.required' => 'La longitud de ubicación es obligatoria.'
+            ]);
+
+            $terreno = Terreno::create($request->all());
+            return response()->json($terreno, 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Terreno  $terreno
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Terreno $terreno)
+    // Mostrar detalles de un terreno específico
+    public function show($id)
     {
-        //
+        try {
+            $terreno = Terreno::findOrFail($id);
+            return response()->json($terreno, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Terreno no encontrado'], 404);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Terreno  $terreno
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Terreno $terreno)
+    // Actualizar datos de un terreno
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $terreno = Terreno::findOrFail($id);
+
+            $request->validate([
+                'id_agricultor' => 'sometimes|required|exists:agricultors,id',
+                'descripcion' => 'sometimes|required|string|max:255',
+                'area' => 'sometimes|required|numeric|min:0',
+                'superficie_total' => 'sometimes|required|numeric|min:0',
+                'ubicacion_latitud' => 'sometimes|required|numeric',
+                'ubicacion_longitud' => 'sometimes|required|numeric'
+            ], [
+                'id_agricultor.exists' => 'El agricultor especificado no existe.',
+                'descripcion.required' => 'El campo descripción es obligatorio.',
+                'area.numeric' => 'El campo área debe ser un número.',
+                'superficie_total.numeric' => 'El campo superficie total debe ser un número.',
+                'ubicacion_latitud.numeric' => 'La latitud debe ser un número.',
+                'ubicacion_longitud.numeric' => 'La longitud debe ser un número.'
+            ]);
+
+            $terreno->update($request->all());
+            return response()->json($terreno, 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Terreno no encontrado'], 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Terreno  $terreno
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Terreno $terreno)
+    // Eliminar un terreno
+    public function destroy($id)
     {
-        //
+        try {
+            $terreno = Terreno::findOrFail($id);
+            $terreno->delete();
+            return response()->json(['message' => 'Terreno eliminado correctamente'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Terreno no encontrado'], 404);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Terreno  $terreno
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Terreno $terreno)
+    // Obtener todas las producciones relacionadas con un terreno específico
+    public function getProducciones($id)
     {
-        //
+        try {
+            $terreno = Terreno::findOrFail($id);
+            $producciones = Produccion::where('id_terreno', $id)->get();
+
+            if ($producciones->isEmpty()) {
+                return response()->json(['message' => 'No se encontraron producciones para este terreno'], 404);
+            }
+
+            return response()->json($producciones, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Terreno no encontrado'], 404);
+        }
     }
 }

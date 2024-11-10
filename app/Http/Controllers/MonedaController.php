@@ -2,84 +2,85 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Moneda;
 use Illuminate\Http\Request;
+use App\Models\Moneda;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 
 class MonedaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Obtener todas las monedas
     public function index()
     {
-        //
+        return response()->json(Moneda::all(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Crear una nueva moneda
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'nombre' => 'required|string|max:255|unique:monedas,nombre',
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'nombre.unique' => 'El nombre de la moneda ya existe.'
+            ]);
+
+            $moneda = Moneda::create($request->all());
+            return response()->json($moneda, 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Moneda  $moneda
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Moneda $moneda)
+    // Mostrar detalles de una moneda específica
+    public function show($id)
     {
-        //
+        try {
+            $moneda = Moneda::findOrFail($id);
+            return response()->json($moneda, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Moneda no encontrada'], 404);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Moneda  $moneda
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Moneda $moneda)
+    // Actualizar datos de una moneda
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $moneda = Moneda::findOrFail($id);
+
+            $request->validate([
+                'nombre' => 'sometimes|required|string|max:255|unique:monedas,nombre,' . $id,
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'nombre.unique' => 'El nombre de la moneda ya existe.'
+            ]);
+
+            $moneda->update($request->all());
+            return response()->json($moneda, 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Moneda no encontrada'], 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Moneda  $moneda
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Moneda $moneda)
+    // Eliminar una moneda
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Moneda  $moneda
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Moneda $moneda)
-    {
-        //
+        try {
+            $moneda = Moneda::findOrFail($id);
+            $moneda->delete();
+            return response()->json(['message' => 'Moneda eliminada correctamente'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Moneda no encontrada'], 404);
+        }
     }
 }

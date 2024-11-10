@@ -2,84 +2,103 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categoria;
 use Illuminate\Http\Request;
+use App\Models\Categoria;
+use App\Models\Producto;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 
 class CategoriaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Obtener todas las categorías
     public function index()
     {
-        //
+        return response()->json(Categoria::all(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Crear una nueva categoría
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'nullable|string'
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.'
+            ]);
+
+            $categoria = Categoria::create($request->all());
+            return response()->json($categoria, 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Categoria  $categoria
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Categoria $categoria)
+    // Mostrar detalles de una categoría específica
+    public function show($id)
     {
-        //
+        try {
+            $categoria = Categoria::findOrFail($id);
+            return response()->json($categoria, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Categoría no encontrada'], 404);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Categoria  $categoria
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Categoria $categoria)
+    // Actualizar datos de una categoría
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $categoria = Categoria::findOrFail($id);
+
+            $request->validate([
+                'nombre' => 'sometimes|required|string|max:255',
+                'descripcion' => 'nullable|string'
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.'
+            ]);
+
+            $categoria->update($request->all());
+            return response()->json($categoria, 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Categoría no encontrada'], 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Categoria  $categoria
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Categoria $categoria)
+    // Eliminar una categoría
+    public function destroy($id)
     {
-        //
+        try {
+            $categoria = Categoria::findOrFail($id);
+            $categoria->delete();
+            return response()->json(['message' => 'Categoría eliminada correctamente'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Categoría no encontrada'], 404);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Categoria  $categoria
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Categoria $categoria)
+    // Obtener todos los productos de una categoría específica
+    public function getProductos($id)
     {
-        //
+        try {
+            $categoria = Categoria::findOrFail($id);
+            $productos = Producto::where('id_categoria', $id)->get();
+
+            if ($productos->isEmpty()) {
+                return response()->json(['message' => 'No se encontraron productos para esta categoría'], 404);
+            }
+
+            return response()->json($productos, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Categoría no encontrada'], 404);
+        }
     }
 }

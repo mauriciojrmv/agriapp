@@ -2,84 +2,113 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Temporada;
 use Illuminate\Http\Request;
+use App\Models\Temporada;
+use App\Models\Produccion;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 
 class TemporadaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Obtener todas las temporadas
     public function index()
     {
-        //
+        return response()->json(Temporada::all(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Crear una nueva temporada
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'nombre' => 'required|string|max:255',
+                'fecha_inicio' => 'required|date',
+                'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+                'descripcion' => 'nullable|string'
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'fecha_inicio.required' => 'El campo fecha de inicio es obligatorio.',
+                'fecha_fin.required' => 'El campo fecha de fin es obligatorio.',
+                'fecha_fin.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.'
+            ]);
+
+            $temporada = Temporada::create($request->all());
+            return response()->json($temporada, 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Temporada  $temporada
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Temporada $temporada)
+    // Mostrar detalles de una temporada específica
+    public function show($id)
     {
-        //
+        try {
+            $temporada = Temporada::findOrFail($id);
+            return response()->json($temporada, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Temporada no encontrada'], 404);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Temporada  $temporada
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Temporada $temporada)
+    // Actualizar datos de una temporada
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $temporada = Temporada::findOrFail($id);
+
+            $request->validate([
+                'nombre' => 'sometimes|required|string|max:255',
+                'fecha_inicio' => 'sometimes|required|date',
+                'fecha_fin' => 'sometimes|required|date|after_or_equal:fecha_inicio',
+                'descripcion' => 'nullable|string'
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'fecha_inicio.required' => 'El campo fecha de inicio es obligatorio.',
+                'fecha_fin.required' => 'El campo fecha de fin es obligatorio.',
+                'fecha_fin.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.'
+            ]);
+
+            $temporada->update($request->all());
+            return response()->json($temporada, 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Temporada no encontrada'], 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Temporada  $temporada
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Temporada $temporada)
+    // Eliminar una temporada
+    public function destroy($id)
     {
-        //
+        try {
+            $temporada = Temporada::findOrFail($id);
+            $temporada->delete();
+            return response()->json(['message' => 'Temporada eliminada correctamente'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Temporada no encontrada'], 404);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Temporada  $temporada
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Temporada $temporada)
+    // Obtener todas las producciones de una temporada específica
+    public function getProducciones($id)
     {
-        //
+        try {
+            $temporada = Temporada::findOrFail($id);
+            $producciones = Produccion::where('id_temporada', $id)->get();
+
+            if ($producciones->isEmpty()) {
+                return response()->json(['message' => 'No se encontraron producciones para esta temporada'], 404);
+            }
+
+            return response()->json($producciones, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Temporada no encontrada'], 404);
+        }
     }
 }
