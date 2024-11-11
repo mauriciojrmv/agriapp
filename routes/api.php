@@ -98,6 +98,8 @@ Route::prefix('v1')->group(function () {
     Route::get('carga_ofertas/estado/{estado}', [CargaOfertaController::class, 'getCargasByEstado'])->name('carga_ofertas.estado');
 
     Route::apiResource('ruta_ofertas', RutaOfertaController::class);
+    Route::get('ruta_ofertas/{id}/cargas', [RutaOfertaController::class, 'getCargas'])->name('ruta_ofertas.cargas');
+
     Route::apiResource('ruta_carga_ofertas', RutaCargaOfertaController::class);
 
     // Rutas para cargas y rutas de pedidos

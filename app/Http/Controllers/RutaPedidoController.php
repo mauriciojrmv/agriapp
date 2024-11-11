@@ -2,84 +2,95 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RutaPedido;
 use Illuminate\Http\Request;
+use App\Models\RutaPedido;
+use App\Models\RutaCargaPedido;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 
 class RutaPedidoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Obtener todas las rutas de pedidos
     public function index()
     {
-        //
+        return response()->json(RutaPedido::with('rutaCargas')->get(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // Crear una nueva ruta de pedido
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'fecha_entrega' => 'required|date',
+                'capacidad_utilizada' => 'required|numeric|min:0',
+                'distancia_total' => 'required|numeric|min:0',
+                'estado' => 'required|string|max:255'
+            ], [
+                'fecha_entrega.required' => 'El campo fecha de entrega es obligatorio.',
+                'capacidad_utilizada.required' => 'El campo capacidad utilizada es obligatorio.',
+                'distancia_total.required' => 'El campo distancia total es obligatorio.',
+                'estado.required' => 'El campo estado es obligatorio.'
+            ]);
+
+            $rutaPedido = RutaPedido::create($request->all());
+            return response()->json($rutaPedido, 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\RutaPedido  $rutaPedido
-     * @return \Illuminate\Http\Response
-     */
-    public function show(RutaPedido $rutaPedido)
+    // Mostrar detalles de una ruta de pedido específica
+    public function show($id)
     {
-        //
+        try {
+            $rutaPedido = RutaPedido::with('rutaCargas')->findOrFail($id);
+            return response()->json($rutaPedido, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Ruta de pedido no encontrada'], 404);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\RutaPedido  $rutaPedido
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(RutaPedido $rutaPedido)
+    // Actualizar datos de una ruta de pedido
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $rutaPedido = RutaPedido::findOrFail($id);
+
+            $request->validate([
+                'fecha_entrega' => 'sometimes|required|date',
+                'capacidad_utilizada' => 'sometimes|required|numeric|min:0',
+                'distancia_total' => 'sometimes|required|numeric|min:0',
+                'estado' => 'sometimes|required|string|max:255'
+            ]);
+
+            $rutaPedido->update($request->all());
+            return response()->json($rutaPedido, 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Ruta de pedido no encontrada'], 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\RutaPedido  $rutaPedido
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, RutaPedido $rutaPedido)
+    // Eliminar una ruta de pedido
+    public function destroy($id)
     {
-        //
-    }
+        try {
+            $rutaPedido = RutaPedido::findOrFail($id);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\RutaPedido  $rutaPedido
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(RutaPedido $rutaPedido)
-    {
-        //
+            // Eliminar todas las cargas asociadas a esta ruta de pedido
+            RutaCargaPedido::where('id_ruta_pedido', $id)->delete();
+
+            $rutaPedido->delete();
+            return response()->json(['message' => 'Ruta de pedido eliminada correctamente'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Ruta de pedido no encontrada'], 404);
+        }
     }
 }
