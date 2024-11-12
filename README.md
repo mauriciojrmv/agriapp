@@ -1,6 +1,6 @@
 # Agricultor App API
 
-Este es un proyecto de API REST para la gestión de agricultores, productos, ofertas, pedidos y más. La API está construida utilizando Laravel.
+Este es un proyecto de API REST para la gestión de agricultores, productos, ofertas, pedidos y más... La API está construida utilizando Laravel.
 
 ## Requisitos Previos
 
