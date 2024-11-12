@@ -75,14 +75,15 @@ class OfertaDetalleController extends Controller
 
     // Mostrar detalles de un detalle de oferta específica
     public function show($id)
-    {
-        try {
-            $detalle = OfertaDetalle::findOrFail($id);
-            return response()->json($detalle, 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Detalle de oferta no encontrado'], 404);
-        }
+{
+    try {
+        $ofertaDetalle = OfertaDetalle::with('unidadMedida')->findOrFail($id);
+        return response()->json($ofertaDetalle, 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Detalle de oferta no encontrado'], 404);
     }
+}
+
 
     // Actualizar datos de un detalle de oferta
     public function update(Request $request, $id)

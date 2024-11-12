@@ -25,6 +25,12 @@ class DatabaseSeeder extends Seeder
             TransportesSeeder::class,
             UnidadMedidasSeeder::class,
             MonedasSeeder::class,
+            ProduccionSeeder::class,
+            OfertaSeeder::class,
+            OfertaDetalleSeeder::class,
+            PedidoSeeder::class,
+            PedidoDetalleSeeder::class,
+
             // Aqui agregamos mas seeders
             ]);
     }

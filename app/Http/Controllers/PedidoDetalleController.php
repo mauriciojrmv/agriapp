@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\PedidoDetalle;
 use App\Models\Producto;
 use App\Models\Pedido;
+use App\Models\UnidadMedida;
 use App\Models\CargaPedido;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
@@ -15,7 +16,7 @@ class PedidoDetalleController extends Controller
     // Obtener todos los detalles de pedidos
     public function index()
     {
-        return response()->json(PedidoDetalle::all(), 200);
+        return response()->json(PedidoDetalle::with('unidadMedida')->get(), 200);
     }
 
     // Crear un nuevo detalle de pedido
@@ -25,6 +26,7 @@ class PedidoDetalleController extends Controller
             $request->validate([
                 'id_pedido' => 'required|exists:pedidos,id',
                 'id_producto' => 'required|exists:productos,id',
+                'id_unidadmedida' => 'required|exists:unidad_medidas,id',  // Validación de id_unidadmedida
                 'cantidad' => 'required|numeric|min:1',
                 'cantidad_ofertada' => 'nullable|numeric|min:0'
             ], [
@@ -32,6 +34,8 @@ class PedidoDetalleController extends Controller
                 'id_pedido.exists' => 'El pedido especificado no existe.',
                 'id_producto.required' => 'El campo id_producto es obligatorio.',
                 'id_producto.exists' => 'El producto especificado no existe.',
+                'id_unidadmedida.required' => 'El campo id_unidadmedida es obligatorio.',
+                'id_unidadmedida.exists' => 'La unidad de medida especificada no existe.',
                 'cantidad.required' => 'El campo cantidad es obligatorio.',
                 'cantidad.numeric' => 'La cantidad debe ser un número.',
                 'cantidad.min' => 'La cantidad debe ser al menos 1.',
@@ -51,8 +55,8 @@ class PedidoDetalleController extends Controller
     public function show($id)
     {
         try {
-            $detalle = PedidoDetalle::findOrFail($id);
-            return response()->json($detalle, 200);
+            $pedidoDetalle = PedidoDetalle::with('unidadMedida')->findOrFail($id);
+            return response()->json($pedidoDetalle, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Detalle de pedido no encontrado'], 404);
         }
@@ -67,11 +71,13 @@ class PedidoDetalleController extends Controller
             $request->validate([
                 'id_pedido' => 'sometimes|required|exists:pedidos,id',
                 'id_producto' => 'sometimes|required|exists:productos,id',
+                'id_unidadmedida' => 'sometimes|required|exists:unidad_medidas,id',  // Validación de id_unidadmedida
                 'cantidad' => 'sometimes|required|numeric|min:1',
                 'cantidad_ofertada' => 'nullable|numeric|min:0'
             ], [
                 'id_pedido.exists' => 'El pedido especificado no existe.',
                 'id_producto.exists' => 'El producto especificado no existe.',
+                'id_unidadmedida.exists' => 'La unidad de medida especificada no existe.',
                 'cantidad.numeric' => 'La cantidad debe ser un número.',
                 'cantidad.min' => 'La cantidad debe ser al menos 1.',
             ]);
@@ -104,7 +110,7 @@ class PedidoDetalleController extends Controller
     public function getCargas($id)
     {
         try {
-            $detalle = PedidoDetalle::findOrFail($id);
+            $detalle = PedidoDetalle::with('unidadMedida')->findOrFail($id);
             $cargas = CargaPedido::where('id_pedido_detalle', $id)->get();
 
             if ($cargas->isEmpty()) {
@@ -120,7 +126,7 @@ class PedidoDetalleController extends Controller
     // Obtener todos los detalles de un pedido específico
     public function getDetallesByPedido($pedidoId)
     {
-        $detalles = PedidoDetalle::where('id_pedido', $pedidoId)->get();
+        $detalles = PedidoDetalle::with('unidadMedida')->where('id_pedido', $pedidoId)->get();
 
         if ($detalles->isEmpty()) {
             return response()->json(['message' => 'No se encontraron detalles para este pedido'], 404);
@@ -132,56 +138,12 @@ class PedidoDetalleController extends Controller
     // Obtener todos los detalles de pedidos que incluyen un producto específico
     public function getDetallesByProducto($productoId)
     {
-        $detalles = PedidoDetalle::where('id_producto', $productoId)->get();
+        $detalles = PedidoDetalle::with('unidadMedida')->where('id_producto', $productoId)->get();
 
         if ($detalles->isEmpty()) {
             return response()->json(['message' => 'No se encontraron detalles de pedido para este producto'], 404);
         }
 
         return response()->json($detalles, 200);
-    }
-
-    // Actualizar cantidad de múltiples detalles de pedido
-    public function updateCantidadBatch(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:pedido_detalles,id',
-            'cantidad' => 'required|numeric|min:1'
-        ]);
-
-        $ids = $request->input('ids');
-        $cantidad = $request->input('cantidad');
-
-        PedidoDetalle::whereIn('id', $ids)->update(['cantidad' => $cantidad]);
-
-        return response()->json(['message' => 'Cantidad actualizada para los detalles de pedido seleccionados'], 200);
-    }
-
-    // Obtener un resumen de la cantidad total de cada producto solicitado en los pedidos
-    public function getResumenProductos()
-    {
-        $resumen = PedidoDetalle::select('id_producto')
-            ->selectRaw('SUM(cantidad) as total_cantidad')
-            ->groupBy('id_producto')
-            ->get();
-
-        return response()->json($resumen, 200);
-    }
-
-    // Verificar si la cantidad solicitada es menor o igual a la cantidad ofertada
-    public function checkAvailability($id)
-    {
-        try {
-            $detalle = PedidoDetalle::findOrFail($id);
-            $disponible = $detalle->cantidad <= $detalle->cantidad_ofertada;
-
-            return response()->json([
-                'pedido_detalle_id' => $id,
-                'disponible' => $disponible
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Detalle de pedido no encontrado'], 404);
-        }
     }
 }

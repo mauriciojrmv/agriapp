@@ -9,7 +9,7 @@ class PedidoDetalle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_pedido', 'id_producto', 'cantidad', 'cantidad_ofertada'];
+    protected $fillable = ['id_pedido', 'id_producto', 'id_unidadmedida', 'cantidad', 'cantidad_ofertada'];
 
     public function pedido()
     {
@@ -24,5 +24,10 @@ class PedidoDetalle extends Model
     public function cargas()
     {
         return $this->hasMany(CargaPedido::class, 'id_pedido_detalle');
+    }
+
+    public function unidadMedida()
+    {
+        return $this->belongsTo(UnidadMedida::class, 'id_unidadmedida');
     }
 }
