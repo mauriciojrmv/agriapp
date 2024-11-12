@@ -9,7 +9,7 @@ class PedidoDetalle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_pedido', 'id_producto', 'id_unidadmedida', 'cantidad', 'cantidad_ofertada', 'estado_ofertado'];
+    protected $fillable = ['id_pedido', 'id_producto', 'id_unidadmedida', 'cantidad', 'cantidad_ofertada', 'estado_ofertado', 'precio_ofertado', 'estado_pedido'];
 
     public function pedido()
     {
@@ -32,15 +32,14 @@ class PedidoDetalle extends Model
     }
 
 
-     // Actualizar el estado de ofertado si la cantidad se cumple
-     public function actualizarEstadoOfertado()
-     {
-         if ($this->cantidad == $this->cantidad_ofertada) {
-             $this->estado_ofertado = 'ofertado';
-         } else {
-             $this->estado_ofertado = 'pendiente';
-         }
-         $this->save();
-     }
-
+    // Actualizar el estado de ofertado si la cantidad se cumple
+    public function actualizarEstadoOfertado()
+    {
+        if ($this->cantidad == $this->cantidad_ofertada) {
+            $this->estado_ofertado = 'ofertado';
+        } else {
+            $this->estado_ofertado = 'pendiente';
+        }
+        $this->save();
+    }
 }

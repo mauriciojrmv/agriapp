@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreignId('id_unidadmedida')->constrained('unidad_medidas');
             $table->integer('cantidad');
             $table->integer('cantidad_ofertada');
+            $table->decimal('precio_ofertado', 10, 2)->default(0.0);
+            $table->string('estado_pedido')->default('pendiente');
             $table->string('estado_ofertado')->default('pendiente');
             $table->timestamps();
         });
