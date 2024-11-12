@@ -23,7 +23,8 @@ return new class extends Migration
             $table->integer('cantidad_fisico');
             $table->integer('cantidad_comprometido');
             $table->decimal('precio', 10, 2);
-            $table->string('estado');
+            $table->decimal('preciounitario', 10, 2)->nullable();
+            $table->string('estado')->default('activo');
             $table->timestamps();
         });
     }

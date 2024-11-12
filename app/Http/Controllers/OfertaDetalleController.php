@@ -32,29 +32,15 @@ class OfertaDetalleController extends Controller
                 'cantidad_fisico' => 'required|numeric|min:1',
                 'cantidad_comprometido' => 'nullable|numeric|min:0',
                 'precio' => 'required|numeric|min:0',
-                'estado' => 'required|string|max:255'
-            ], [
-                'id_oferta.required' => 'El campo id_oferta es obligatorio.',
-                'id_oferta.exists' => 'La oferta especificada no existe.',
-                'id_unidadmedida.required' => 'El campo id_unidadmedida es obligatorio.',
-                'id_unidadmedida.exists' => 'La unidad de medida especificada no existe.',
-                'id_moneda.required' => 'El campo id_moneda es obligatorio.',
-                'id_moneda.exists' => 'La moneda especificada no existe.',
-                'id_produccion.required' => 'El campo id_produccion es obligatorio.',
-                'id_produccion.exists' => 'La producción especificada no existe.',
-                'cantidad_fisico.required' => 'El campo cantidad físico es obligatorio.',
-                'precio.required' => 'El campo precio es obligatorio.',
-                'estado.required' => 'El campo estado es obligatorio.'
+                'estado' => 'sometimes|string|max:255'
             ]);
 
             // Obtener la oferta y la producción asociada
             $oferta = Oferta::findOrFail($request->id_oferta);
-            $produccion = $oferta->produccion; // Obtener la producción a través de la oferta
+            $produccion = $oferta->produccion;
 
-            // Calcular la cantidad disponible en la producción
+            // Verificar cantidad disponible en la producción
             $cantidadDisponible = $produccion->cantidad;
-
-            // Sumar todas las cantidades físicas de los detalles de oferta actuales para esta producción
             $cantidadOfertada = OfertaDetalle::where('id_produccion', $request->id_produccion)->sum('cantidad_fisico');
 
             if (($cantidadOfertada + $request->cantidad_fisico) > $cantidadDisponible) {
@@ -73,17 +59,16 @@ class OfertaDetalleController extends Controller
         }
     }
 
-    // Mostrar detalles de un detalle de oferta específica
+    // Mostrar detalles de un detalle de oferta específico
     public function show($id)
-{
-    try {
-        $ofertaDetalle = OfertaDetalle::with('unidadMedida')->findOrFail($id);
-        return response()->json($ofertaDetalle, 200);
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['message' => 'Detalle de oferta no encontrado'], 404);
+    {
+        try {
+            $ofertaDetalle = OfertaDetalle::with('unidadMedida')->findOrFail($id);
+            return response()->json($ofertaDetalle, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Detalle de oferta no encontrado'], 404);
+        }
     }
-}
-
 
     // Actualizar datos de un detalle de oferta
     public function update(Request $request, $id)
@@ -99,12 +84,7 @@ class OfertaDetalleController extends Controller
                 'cantidad_fisico' => 'sometimes|required|numeric|min:1',
                 'cantidad_comprometido' => 'nullable|numeric|min:0',
                 'precio' => 'sometimes|required|numeric|min:0',
-                'estado' => 'sometimes|required|string|max:255'
-            ], [
-                'id_oferta.exists' => 'La oferta especificada no existe.',
-                'id_unidadmedida.exists' => 'La unidad de medida especificada no existe.',
-                'id_moneda.exists' => 'La moneda especificada no existe.',
-                'cantidad_fisico.numeric' => 'El campo cantidad físico debe ser un número.'
+                'estado' => 'sometimes|string|max:255'
             ]);
 
             $detalle->update($request->all());
@@ -148,7 +128,7 @@ class OfertaDetalleController extends Controller
         }
     }
 
-    // Función adicional: Verificar disponibilidad en función de cantidad comprometida
+    // Verificar disponibilidad en función de cantidad comprometida
     public function checkDisponibilidad($id)
     {
         try {
@@ -164,7 +144,7 @@ class OfertaDetalleController extends Controller
         }
     }
 
-    // Función adicional: Obtener detalles de ofertas filtrados por moneda
+    // Obtener detalles de ofertas filtrados por moneda
     public function getDetallesByMoneda($monedaId)
     {
         $detalles = OfertaDetalle::where('id_moneda', $monedaId)->get();
@@ -176,7 +156,7 @@ class OfertaDetalleController extends Controller
         return response()->json($detalles, 200);
     }
 
-    // Función adicional: Obtener detalles de ofertas filtrados por unidad de medida
+    // Obtener detalles de ofertas filtrados por unidad de medida
     public function getDetallesByUnidadMedida($unidadMedidaId)
     {
         $detalles = OfertaDetalle::where('id_unidadmedida', $unidadMedidaId)->get();

@@ -26,7 +26,7 @@ class PedidoDetalleController extends Controller
             $request->validate([
                 'id_pedido' => 'required|exists:pedidos,id',
                 'id_producto' => 'required|exists:productos,id',
-                'id_unidadmedida' => 'required|exists:unidad_medidas,id',  // Validación de id_unidadmedida
+                'id_unidadmedida' => 'required|exists:unidad_medidas,id',
                 'cantidad' => 'required|numeric|min:1',
                 'cantidad_ofertada' => 'nullable|numeric|min:0'
             ], [
@@ -42,6 +42,7 @@ class PedidoDetalleController extends Controller
             ]);
 
             $detalle = PedidoDetalle::create($request->all());
+            $detalle->actualizarEstadoOfertado(); // Actualiza el estado basado en las cantidades
             return response()->json($detalle, 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -71,7 +72,7 @@ class PedidoDetalleController extends Controller
             $request->validate([
                 'id_pedido' => 'sometimes|required|exists:pedidos,id',
                 'id_producto' => 'sometimes|required|exists:productos,id',
-                'id_unidadmedida' => 'sometimes|required|exists:unidad_medidas,id',  // Validación de id_unidadmedida
+                'id_unidadmedida' => 'sometimes|required|exists:unidad_medidas,id',
                 'cantidad' => 'sometimes|required|numeric|min:1',
                 'cantidad_ofertada' => 'nullable|numeric|min:0'
             ], [
@@ -83,6 +84,7 @@ class PedidoDetalleController extends Controller
             ]);
 
             $detalle->update($request->all());
+            $detalle->actualizarEstadoOfertado(); // Actualiza el estado basado en las cantidades
             return response()->json($detalle, 200);
         } catch (ValidationException $e) {
             return response()->json([
