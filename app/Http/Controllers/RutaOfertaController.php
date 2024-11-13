@@ -13,7 +13,7 @@ class RutaOfertaController extends Controller
     // Obtener todas las rutas de oferta
     public function index()
     {
-        return response()->json(RutaOferta::all(), 200);
+        return response()->json(RutaOferta::with('rutaCargas')->get(), 200);
     }
 
     // Crear una nueva ruta de oferta
@@ -48,7 +48,7 @@ class RutaOfertaController extends Controller
     public function show($id)
     {
         try {
-            $rutaOferta = RutaOferta::findOrFail($id);
+            $rutaOferta = RutaOferta::with('rutaCargas')->findOrFail($id);
             return response()->json($rutaOferta, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Ruta de oferta no encontrada'], 404);

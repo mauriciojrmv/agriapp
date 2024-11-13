@@ -11,7 +11,7 @@ class RutaOferta extends Model
 
     protected $fillable = ['fecha_recogida', 'capacidad_utilizada', 'distancia_total', 'estado'];
 
-    public function cargas()
+    public function rutaCargas()
     {
         return $this->hasMany(RutaCargaOferta::class, 'id_ruta_oferta');
     }
