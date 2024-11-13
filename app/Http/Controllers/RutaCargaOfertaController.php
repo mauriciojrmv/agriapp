@@ -15,7 +15,8 @@ class RutaCargaOfertaController extends Controller
     // Obtener todas las cargas asociadas a rutas de oferta
     public function index()
     {
-        return response()->json(RutaCargaOferta::all(), 200);
+        $rutasCargasOfertas = RutaCargaOferta::with(['cargaOferta', 'rutaOferta', 'transporte'])->get();
+        return response()->json($rutasCargasOfertas, 200);
     }
 
     // Crear una nueva carga de ruta de oferta
@@ -29,6 +30,18 @@ class RutaCargaOfertaController extends Controller
                 'orden' => 'required|integer|min:1',
                 'estado' => 'required|string|max:255',
                 'distancia' => 'required|numeric|min:0'
+            ], [
+                'id_carga_oferta.required' => 'El campo id_carga_oferta es obligatorio.',
+                'id_carga_oferta.exists' => 'La carga de oferta especificada no existe.',
+                'id_ruta_oferta.required' => 'El campo id_ruta_oferta es obligatorio.',
+                'id_ruta_oferta.exists' => 'La ruta de oferta especificada no existe.',
+                'id_transporte.required' => 'El campo id_transporte es obligatorio.',
+                'id_transporte.exists' => 'El transporte especificado no existe.',
+                'orden.required' => 'El campo orden es obligatorio.',
+                'orden.integer' => 'El campo orden debe ser un número entero.',
+                'estado.required' => 'El campo estado es obligatorio.',
+                'distancia.required' => 'El campo distancia es obligatorio.',
+                'distancia.numeric' => 'La distancia debe ser un número.'
             ]);
 
             $rutaCargaOferta = RutaCargaOferta::create($request->all());
@@ -45,7 +58,7 @@ class RutaCargaOfertaController extends Controller
     public function show($id)
     {
         try {
-            $rutaCargaOferta = RutaCargaOferta::findOrFail($id);
+            $rutaCargaOferta = RutaCargaOferta::with(['cargaOferta', 'rutaOferta', 'transporte'])->findOrFail($id);
             return response()->json($rutaCargaOferta, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Carga de ruta de oferta no encontrada'], 404);
@@ -65,6 +78,12 @@ class RutaCargaOfertaController extends Controller
                 'orden' => 'sometimes|required|integer|min:1',
                 'estado' => 'sometimes|required|string|max:255',
                 'distancia' => 'sometimes|required|numeric|min:0'
+            ], [
+                'id_carga_oferta.exists' => 'La carga de oferta especificada no existe.',
+                'id_ruta_oferta.exists' => 'La ruta de oferta especificada no existe.',
+                'id_transporte.exists' => 'El transporte especificado no existe.',
+                'orden.integer' => 'El campo orden debe ser un número entero.',
+                'distancia.numeric' => 'La distancia debe ser un número.'
             ]);
 
             $rutaCargaOferta->update($request->all());
