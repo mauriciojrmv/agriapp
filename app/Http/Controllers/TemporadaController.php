@@ -4,16 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Temporada;
-use App\Models\Produccion;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class TemporadaController extends Controller
 {
-    // Obtener todas las temporadas
+    // Obtener todas las temporadas con sus producciones
     public function index()
     {
-        return response()->json(Temporada::all(), 200);
+        return response()->json(Temporada::with('producciones')->get(), 200);
     }
 
     // Crear una nueva temporada
@@ -42,11 +41,11 @@ class TemporadaController extends Controller
         }
     }
 
-    // Mostrar detalles de una temporada específica
+    // Mostrar detalles de una temporada específica con sus producciones
     public function show($id)
     {
         try {
-            $temporada = Temporada::findOrFail($id);
+            $temporada = Temporada::with('producciones')->findOrFail($id);
             return response()->json($temporada, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Temporada no encontrada'], 404);
@@ -100,7 +99,7 @@ class TemporadaController extends Controller
     {
         try {
             $temporada = Temporada::findOrFail($id);
-            $producciones = Produccion::where('id_temporada', $id)->get();
+            $producciones = $temporada->producciones;
 
             if ($producciones->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron producciones para esta temporada'], 404);

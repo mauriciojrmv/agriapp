@@ -4,16 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Terreno;
-use App\Models\Produccion;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class TerrenoController extends Controller
 {
-    // Obtener todos los terrenos
+    // Obtener todos los terrenos con agricultor y producciones
     public function index()
     {
-        return response()->json(Terreno::all(), 200);
+        return response()->json(Terreno::with(['agricultor', 'producciones'])->get(), 200);
     }
 
     // Crear un nuevo terreno
@@ -49,11 +48,11 @@ class TerrenoController extends Controller
         }
     }
 
-    // Mostrar detalles de un terreno específico
+    // Mostrar detalles de un terreno específico con agricultor y producciones
     public function show($id)
     {
         try {
-            $terreno = Terreno::findOrFail($id);
+            $terreno = Terreno::with(['agricultor', 'producciones'])->findOrFail($id);
             return response()->json($terreno, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Terreno no encontrado'], 404);
@@ -111,7 +110,7 @@ class TerrenoController extends Controller
     {
         try {
             $terreno = Terreno::findOrFail($id);
-            $producciones = Produccion::where('id_terreno', $id)->get();
+            $producciones = $terreno->producciones;
 
             if ($producciones->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron producciones para este terreno'], 404);

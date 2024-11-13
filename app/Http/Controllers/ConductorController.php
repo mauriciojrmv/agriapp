@@ -1,19 +1,20 @@
 <?php
 
+// App\Http\Controllers\ConductorController.php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Conductor;
-use App\Models\Transporte;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class ConductorController extends Controller
 {
-    // Obtener todos los conductores
+    // Obtener todos los conductores con sus transportes
     public function index()
     {
-        return response()->json(Conductor::all(), 200);
+        return response()->json(Conductor::with('transportes')->get(), 200);
     }
 
     // Crear un nuevo conductor
@@ -32,16 +33,6 @@ class ConductorController extends Controller
                 'ubicacion_latitud' => 'nullable|numeric',
                 'ubicacion_longitud' => 'nullable|numeric',
                 'estado' => 'required|string'
-            ], [
-                'nombre.required' => 'El campo nombre es obligatorio.',
-                'apellido.required' => 'El campo apellido es obligatorio.',
-                'carnet.required' => 'El campo carnet es obligatorio.',
-                'carnet.unique' => 'Este carnet ya está registrado.',
-                'licencia_conducir.required' => 'El campo licencia de conducir es obligatorio.',
-                'email.required' => 'El campo email es obligatorio.',
-                'email.unique' => 'Este correo electrónico ya está registrado.',
-                'password.required' => 'El campo contraseña es obligatorio.',
-                'password.min' => 'La contraseña debe tener al menos 8 caracteres.'
             ]);
 
             $conductor = Conductor::create($request->all());
@@ -54,11 +45,11 @@ class ConductorController extends Controller
         }
     }
 
-    // Mostrar detalles de un conductor específico
+    // Mostrar detalles de un conductor específico con sus transportes
     public function show($id)
     {
         try {
-            $conductor = Conductor::findOrFail($id);
+            $conductor = Conductor::with('transportes')->findOrFail($id);
             return response()->json($conductor, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Conductor no encontrado'], 404);
@@ -83,12 +74,6 @@ class ConductorController extends Controller
                 'ubicacion_latitud' => 'nullable|numeric',
                 'ubicacion_longitud' => 'nullable|numeric',
                 'estado' => 'sometimes|required|string'
-            ], [
-                'nombre.required' => 'El campo nombre es obligatorio.',
-                'apellido.required' => 'El campo apellido es obligatorio.',
-                'carnet.unique' => 'Este carnet ya está registrado.',
-                'email.unique' => 'Este correo electrónico ya está registrado.',
-                'password.min' => 'La contraseña debe tener al menos 8 caracteres.'
             ]);
 
             $conductor->update($request->all());
@@ -115,12 +100,12 @@ class ConductorController extends Controller
         }
     }
 
-    // Obtener los transportes de un conductor específico
+    // Obtener los transportes de un conductor específico (método adicional si es necesario)
     public function getTransportes($id)
     {
         try {
             $conductor = Conductor::findOrFail($id);
-            $transportes = Transporte::where('id_conductor', $id)->get();
+            $transportes = $conductor->transportes;
 
             if ($transportes->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron transportes para este conductor'], 404);

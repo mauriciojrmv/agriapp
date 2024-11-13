@@ -4,19 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PedidoDetalle;
-use App\Models\Producto;
-use App\Models\Pedido;
-use App\Models\UnidadMedida;
-use App\Models\CargaPedido;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class PedidoDetalleController extends Controller
 {
-    // Obtener todos los detalles de pedidos
+    // Obtener todos los detalles de pedidos con sus relaciones
     public function index()
     {
-        return response()->json(PedidoDetalle::with('unidadMedida')->get(), 200);
+        return response()->json(PedidoDetalle::with('pedido', 'producto', 'unidadMedida', 'cargas')->get(), 200);
     }
 
     // Crear un nuevo detalle de pedido
@@ -52,11 +48,11 @@ class PedidoDetalleController extends Controller
         }
     }
 
-    // Mostrar detalles de un detalle de pedido específico
+    // Mostrar detalles de un detalle de pedido específico con sus relaciones
     public function show($id)
     {
         try {
-            $pedidoDetalle = PedidoDetalle::with('unidadMedida')->findOrFail($id);
+            $pedidoDetalle = PedidoDetalle::with('pedido', 'producto', 'unidadMedida', 'cargas')->findOrFail($id);
             return response()->json($pedidoDetalle, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Detalle de pedido no encontrado'], 404);
@@ -113,7 +109,7 @@ class PedidoDetalleController extends Controller
     {
         try {
             $detalle = PedidoDetalle::with('unidadMedida')->findOrFail($id);
-            $cargas = CargaPedido::where('id_pedido_detalle', $id)->get();
+            $cargas = $detalle->cargas;
 
             if ($cargas->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron cargas para este detalle de pedido'], 404);
@@ -128,22 +124,10 @@ class PedidoDetalleController extends Controller
     // Obtener todos los detalles de un pedido específico
     public function getDetallesByPedido($pedidoId)
     {
-        $detalles = PedidoDetalle::with('unidadMedida')->where('id_pedido', $pedidoId)->get();
+        $detalles = PedidoDetalle::with('pedido', 'producto', 'unidadMedida', 'cargas')->where('id_pedido', $pedidoId)->get();
 
         if ($detalles->isEmpty()) {
             return response()->json(['message' => 'No se encontraron detalles para este pedido'], 404);
-        }
-
-        return response()->json($detalles, 200);
-    }
-
-    // Obtener todos los detalles de pedidos que incluyen un producto específico
-    public function getDetallesByProducto($productoId)
-    {
-        $detalles = PedidoDetalle::with('unidadMedida')->where('id_producto', $productoId)->get();
-
-        if ($detalles->isEmpty()) {
-            return response()->json(['message' => 'No se encontraron detalles de pedido para este producto'], 404);
         }
 
         return response()->json($detalles, 200);

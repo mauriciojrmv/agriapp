@@ -4,16 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Categoria;
-use App\Models\Producto;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class CategoriaController extends Controller
 {
-    // Obtener todas las categorías
+    // Obtener todas las categorías con sus productos
     public function index()
     {
-        return response()->json(Categoria::all(), 200);
+        return response()->json(Categoria::with('productos')->get(), 200);
     }
 
     // Crear una nueva categoría
@@ -24,7 +23,9 @@ class CategoriaController extends Controller
                 'nombre' => 'required|string|max:255',
                 'descripcion' => 'nullable|string'
             ], [
-                'nombre.required' => 'El campo nombre es obligatorio.'
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'nombre.max' => 'El nombre no debe superar los 255 caracteres.',
+                'descripcion.string' => 'La descripción debe ser una cadena de texto.'
             ]);
 
             $categoria = Categoria::create($request->all());
@@ -37,11 +38,11 @@ class CategoriaController extends Controller
         }
     }
 
-    // Mostrar detalles de una categoría específica
+    // Mostrar detalles de una categoría específica con sus productos
     public function show($id)
     {
         try {
-            $categoria = Categoria::findOrFail($id);
+            $categoria = Categoria::with('productos')->findOrFail($id);
             return response()->json($categoria, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Categoría no encontrada'], 404);
@@ -58,7 +59,9 @@ class CategoriaController extends Controller
                 'nombre' => 'sometimes|required|string|max:255',
                 'descripcion' => 'nullable|string'
             ], [
-                'nombre.required' => 'El campo nombre es obligatorio.'
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'nombre.max' => 'El nombre no debe superar los 255 caracteres.',
+                'descripcion.string' => 'La descripción debe ser una cadena de texto.'
             ]);
 
             $categoria->update($request->all());
@@ -90,7 +93,7 @@ class CategoriaController extends Controller
     {
         try {
             $categoria = Categoria::findOrFail($id);
-            $productos = Producto::where('id_categoria', $id)->get();
+            $productos = $categoria->productos;
 
             if ($productos->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron productos para esta categoría'], 404);

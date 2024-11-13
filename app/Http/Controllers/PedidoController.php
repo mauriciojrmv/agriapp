@@ -4,16 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pedido;
-use App\Models\PedidoDetalle;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class PedidoController extends Controller
 {
-    // Obtener todos los pedidos
+    // Obtener todos los pedidos con sus relaciones
     public function index()
     {
-        return response()->json(Pedido::all(), 200);
+        return response()->json(Pedido::with('cliente', 'detalles.producto')->get(), 200);
     }
 
     // Crear un nuevo pedido
@@ -45,11 +44,11 @@ class PedidoController extends Controller
         }
     }
 
-    // Mostrar detalles de un pedido específico
+    // Mostrar detalles de un pedido específico con sus relaciones
     public function show($id)
     {
         try {
-            $pedido = Pedido::findOrFail($id);
+            $pedido = Pedido::with('cliente', 'detalles.producto')->findOrFail($id);
             return response()->json($pedido, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Pedido no encontrado'], 404);
@@ -105,7 +104,7 @@ class PedidoController extends Controller
     {
         try {
             $pedido = Pedido::findOrFail($id);
-            $detalles = PedidoDetalle::where('id_pedido', $id)->get();
+            $detalles = $pedido->detalles()->with('producto')->get();
 
             if ($detalles->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron detalles para este pedido'], 404);
@@ -115,63 +114,5 @@ class PedidoController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Pedido no encontrado'], 404);
         }
-    }
-
-    // Obtener pedidos por estado
-    public function getPedidosByEstado($estado)
-    {
-        $pedidos = Pedido::where('estado', $estado)->get();
-
-        if ($pedidos->isEmpty()) {
-            return response()->json(['message' => "No se encontraron pedidos con el estado: $estado"], 404);
-        }
-
-        return response()->json($pedidos, 200);
-    }
-
-    // Actualizar estado de múltiples pedidos
-    public function updateEstadoBatch(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:pedidos,id',
-            'estado' => 'required|string|max:255'
-        ]);
-
-        $ids = $request->input('ids');
-        $estado = $request->input('estado');
-
-        Pedido::whereIn('id', $ids)->update(['estado' => $estado]);
-
-        return response()->json(['message' => 'Estado actualizado para los pedidos seleccionados'], 200);
-    }
-
-    // Obtener el historial de pedidos de un cliente
-    public function getPedidosByCliente($clienteId)
-    {
-        $pedidos = Pedido::where('id_cliente', $clienteId)->get();
-
-        if ($pedidos->isEmpty()) {
-            return response()->json(['message' => 'No se encontraron pedidos para este cliente'], 404);
-        }
-
-        return response()->json($pedidos, 200);
-    }
-
-    // Buscar pedidos por rango de fecha
-    public function getPedidosByFecha(Request $request)
-    {
-        $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
-        ]);
-
-        $pedidos = Pedido::whereBetween('created_at', [$request->fecha_inicio, $request->fecha_fin])->get();
-
-        if ($pedidos->isEmpty()) {
-            return response()->json(['message' => 'No se encontraron pedidos en el rango de fechas especificado'], 404);
-        }
-
-        return response()->json($pedidos, 200);
     }
 }

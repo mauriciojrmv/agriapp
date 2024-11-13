@@ -4,16 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Producto;
-use App\Models\Produccion;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class ProductoController extends Controller
 {
-    // Obtener todos los productos
+    // Obtener todos los productos con sus relaciones
     public function index()
     {
-        return response()->json(Producto::all(), 200);
+        return response()->json(Producto::with('categoria', 'producciones', 'pedidoDetalles')->get(), 200);
     }
 
     // Crear un nuevo producto
@@ -40,11 +39,11 @@ class ProductoController extends Controller
         }
     }
 
-    // Mostrar detalles de un producto específico
+    // Mostrar detalles de un producto específico con sus relaciones
     public function show($id)
     {
         try {
-            $producto = Producto::findOrFail($id);
+            $producto = Producto::with('categoria', 'producciones', 'pedidoDetalles')->findOrFail($id);
             return response()->json($producto, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
@@ -95,7 +94,7 @@ class ProductoController extends Controller
     {
         try {
             $producto = Producto::findOrFail($id);
-            $producciones = Produccion::where('id_producto', $id)->get();
+            $producciones = $producto->producciones;
 
             if ($producciones->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron producciones para este producto'], 404);

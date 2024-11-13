@@ -13,7 +13,7 @@ class ClienteController extends Controller
     // Obtener todos los clientes
     public function index()
     {
-        return response()->json(Cliente::all(), 200);
+        return response()->json(Cliente::with('pedidos')->get(), 200);
     }
 
     // Crear un nuevo cliente
@@ -51,7 +51,7 @@ class ClienteController extends Controller
     public function show($id)
     {
         try {
-            $cliente = Cliente::findOrFail($id);
+            $cliente = Cliente::with('pedidos')->findOrFail($id);
             return response()->json($cliente, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Cliente no encontrado'], 404);

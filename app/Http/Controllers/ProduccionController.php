@@ -4,19 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Produccion;
-use App\Models\Terreno;
-use App\Models\Temporada;
-use App\Models\Producto;
-use App\Models\UnidadMedida;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class ProduccionController extends Controller
 {
-    // Obtener todos los detalles de producciones
+    // Obtener todas las producciones con sus relaciones
     public function index()
     {
-        return response()->json(Produccion::all(), 200);
+        return response()->json(Produccion::with('terreno', 'temporada', 'producto', 'unidadMedida', 'ofertas')->get(), 200);
     }
 
     // Crear una nueva producción
@@ -57,11 +53,11 @@ class ProduccionController extends Controller
         }
     }
 
-    // Mostrar una producción específica
+    // Mostrar una producción específica con sus relaciones
     public function show($id)
     {
         try {
-            $produccion = Produccion::findOrFail($id);
+            $produccion = Produccion::with('terreno', 'temporada', 'producto', 'unidadMedida', 'ofertas')->findOrFail($id);
             return response()->json($produccion, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Producción no encontrada'], 404);
@@ -115,7 +111,7 @@ class ProduccionController extends Controller
         }
     }
 
-    // Función adicional: Obtener producciones activas (no expiradas)
+    // Obtener producciones activas (no expiradas)
     public function getProduccionesActivas()
     {
         $producciones = Produccion::where('fecha_expiracion', '>=', now())->where('estado', 'activo')->get();
@@ -127,7 +123,7 @@ class ProduccionController extends Controller
         return response()->json($producciones, 200);
     }
 
-    // Función adicional: Obtener producciones por terreno
+    // Obtener producciones por terreno
     public function getProduccionesByTerreno($terrenoId)
     {
         $producciones = Produccion::where('id_terreno', $terrenoId)->get();
@@ -139,7 +135,7 @@ class ProduccionController extends Controller
         return response()->json($producciones, 200);
     }
 
-    // Función adicional: Obtener producciones por temporada
+    // Obtener producciones por temporada
     public function getProduccionesByTemporada($temporadaId)
     {
         $producciones = Produccion::where('id_temporada', $temporadaId)->get();
@@ -151,7 +147,7 @@ class ProduccionController extends Controller
         return response()->json($producciones, 200);
     }
 
-    // Función adicional: Obtener producciones por producto
+    // Obtener producciones por producto
     public function getProduccionesByProducto($productoId)
     {
         $producciones = Produccion::where('id_producto', $productoId)->get();

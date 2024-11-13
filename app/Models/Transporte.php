@@ -15,4 +15,14 @@ class Transporte extends Model
     {
         return $this->belongsTo(Conductor::class, 'id_conductor');
     }
+
+    public function rutaCargaPedidos()
+    {
+        return $this->hasMany(RutaCargaPedido::class, 'id_transporte');
+    }
+
+    public function rutaCargaOfertas()
+    {
+        return $this->hasMany(RutaCargaOferta::class, 'id_transporte');
+    }
 }

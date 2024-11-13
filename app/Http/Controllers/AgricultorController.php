@@ -4,17 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Agricultor;
-use App\Models\Terreno;
 use App\Models\Produccion;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class AgricultorController extends Controller
 {
-    // Obtener todos los agricultores
+    // Obtener todos los agricultores con sus terrenos
     public function index()
     {
-        return response()->json(Agricultor::all(), 200);
+        return response()->json(Agricultor::with('terrenos')->get(), 200);
     }
 
     // Crear un nuevo agricultor
@@ -55,11 +54,11 @@ class AgricultorController extends Controller
         }
     }
 
-    // Mostrar detalles de un agricultor específico
+    // Mostrar detalles de un agricultor específico con sus terrenos
     public function show($id)
     {
         try {
-            $agricultor = Agricultor::findOrFail($id);
+            $agricultor = Agricultor::with('terrenos')->findOrFail($id);
             return response()->json($agricultor, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Agricultor no encontrado'], 404);
@@ -113,23 +112,6 @@ class AgricultorController extends Controller
             $agricultor = Agricultor::findOrFail($id);
             $agricultor->delete();
             return response()->json(['message' => 'Agricultor eliminado correctamente'], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Agricultor no encontrado'], 404);
-        }
-    }
-
-    // Obtener los terrenos de un agricultor específico
-    public function getTerrenos($id)
-    {
-        try {
-            $agricultor = Agricultor::findOrFail($id);
-            $terrenos = Terreno::where('id_agricultor', $id)->get();
-
-            if ($terrenos->isEmpty()) {
-                return response()->json(['message' => 'No se encontraron terrenos para este agricultor'], 404);
-            }
-
-            return response()->json($terrenos, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Agricultor no encontrado'], 404);
         }
