@@ -14,7 +14,15 @@ class CargaOfertaController extends Controller
     // Obtener todas las cargas de oferta
     public function index()
     {
-        return response()->json(CargaOferta::all(), 200);
+        return response()->json(
+            CargaOferta::with([
+                'ofertaDetalle.produccion.producto',
+                'ofertaDetalle.unidadMedida',
+                'ofertaDetalle.moneda',
+                'rutas'
+            ])->get(),
+            200
+        );
     }
 
     // Crear una nueva carga de oferta
@@ -64,7 +72,13 @@ class CargaOfertaController extends Controller
     public function show($id)
     {
         try {
-            $cargaOferta = CargaOferta::findOrFail($id);
+            $cargaOferta = CargaOferta::with([
+                'ofertaDetalle.produccion.producto',
+                'ofertaDetalle.unidadMedida',
+                'ofertaDetalle.moneda',
+                'rutas'
+            ])->findOrFail($id);
+
             return response()->json($cargaOferta, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Carga de oferta no encontrada'], 404);

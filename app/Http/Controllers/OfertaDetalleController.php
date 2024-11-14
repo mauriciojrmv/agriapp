@@ -16,7 +16,16 @@ class OfertaDetalleController extends Controller
     // Obtener todos los detalles de ofertas
     public function index()
     {
-        return response()->json(OfertaDetalle::all(), 200);
+        return response()->json(
+            OfertaDetalle::with([
+                'oferta',
+                'produccion.producto',
+                'unidadMedida',
+                'moneda',
+                'cargas'
+            ])->get(),
+            200
+        );
     }
 
     // Crear un nuevo detalle de oferta
@@ -63,7 +72,14 @@ class OfertaDetalleController extends Controller
     public function show($id)
     {
         try {
-            $ofertaDetalle = OfertaDetalle::with('unidadMedida')->findOrFail($id);
+            $ofertaDetalle = OfertaDetalle::with([
+                'oferta',
+                'produccion.producto',
+                'unidadMedida',
+                'moneda',
+                'cargas'
+            ])->findOrFail($id);
+
             return response()->json($ofertaDetalle, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Detalle de oferta no encontrado'], 404);

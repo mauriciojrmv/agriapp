@@ -4,17 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Oferta;
-use App\Models\Produccion;
 use App\Models\OfertaDetalle;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 class OfertaController extends Controller
 {
-    // Obtener todas las ofertas
+    // Obtener todas las ofertas con sus relaciones
     public function index()
     {
-        return response()->json(Oferta::all(), 200);
+        return response()->json(
+            Oferta::with([
+                'produccion.terreno',
+                'produccion.producto',
+                'produccion.unidadMedida',
+                'detalles.unidadMedida'
+            ])->get(),
+            200
+        );
     }
 
     // Crear una nueva oferta
@@ -45,11 +52,16 @@ class OfertaController extends Controller
         }
     }
 
-    // Mostrar detalles de una oferta específica
+    // Mostrar detalles de una oferta específica con sus relaciones
     public function show($id)
     {
         try {
-            $oferta = Oferta::findOrFail($id);
+            $oferta = Oferta::with([
+                'produccion.terreno',
+                'produccion.producto',
+                'produccion.unidadMedida',
+                'detalles.unidadMedida'
+            ])->findOrFail($id);
             return response()->json($oferta, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Oferta no encontrada'], 404);

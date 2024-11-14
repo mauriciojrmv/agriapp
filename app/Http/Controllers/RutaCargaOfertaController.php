@@ -15,7 +15,11 @@ class RutaCargaOfertaController extends Controller
     // Obtener todas las cargas asociadas a rutas de oferta
     public function index()
     {
-        $rutasCargasOfertas = RutaCargaOferta::with(['cargaOferta', 'rutaOferta', 'transporte'])->get();
+        $rutasCargasOfertas = RutaCargaOferta::with([
+            'cargaOferta.ofertaDetalle.produccion.producto',
+            'rutaOferta',
+            'transporte.conductor'
+            ])->get();
         return response()->json($rutasCargasOfertas, 200);
     }
 
@@ -58,7 +62,10 @@ class RutaCargaOfertaController extends Controller
     public function show($id)
     {
         try {
-            $rutaCargaOferta = RutaCargaOferta::with(['cargaOferta', 'rutaOferta', 'transporte'])->findOrFail($id);
+            $rutaCargaOferta = RutaCargaOferta::with([
+            'cargaOferta.ofertaDetalle.produccion.producto',
+            'rutaOferta',
+            'transporte.conductor'])->findOrFail($id);
             return response()->json($rutaCargaOferta, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Carga de ruta de oferta no encontrada'], 404);

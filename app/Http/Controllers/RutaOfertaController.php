@@ -10,10 +10,15 @@ use Illuminate\Validation\ValidationException;
 
 class RutaOfertaController extends Controller
 {
-    // Obtener todas las rutas de oferta
+    // Obtener todas las rutas de oferta con sus cargas y detalles relevantes
     public function index()
     {
-        return response()->json(RutaOferta::with('rutaCargas')->get(), 200);
+        return response()->json(
+            RutaOferta::with([
+                'rutaCargaOferta.cargaOferta.ofertaDetalle.produccion.producto'
+            ])->get(),
+            200
+        );
     }
 
     // Crear una nueva ruta de oferta
@@ -25,13 +30,6 @@ class RutaOfertaController extends Controller
                 'capacidad_utilizada' => 'required|numeric|min:0',
                 'distancia_total' => 'required|numeric|min:0',
                 'estado' => 'required|string|max:255'
-            ], [
-                'fecha_recogida.required' => 'El campo fecha de recogida es obligatorio.',
-                'capacidad_utilizada.required' => 'El campo capacidad utilizada es obligatorio.',
-                'capacidad_utilizada.numeric' => 'La capacidad utilizada debe ser un número.',
-                'distancia_total.required' => 'El campo distancia total es obligatorio.',
-                'distancia_total.numeric' => 'La distancia total debe ser un número.',
-                'estado.required' => 'El campo estado es obligatorio.'
             ]);
 
             $rutaOferta = RutaOferta::create($request->all());
@@ -44,11 +42,14 @@ class RutaOfertaController extends Controller
         }
     }
 
-    // Mostrar detalles de una ruta de oferta específica
+    // Mostrar detalles de una ruta de oferta específica con cargas y detalles relevantes
     public function show($id)
     {
         try {
-            $rutaOferta = RutaOferta::with('rutaCargas')->findOrFail($id);
+            $rutaOferta = RutaOferta::with([
+                'rutaCargaOferta.cargaOferta.ofertaDetalle.produccion.producto'
+            ])->findOrFail($id);
+
             return response()->json($rutaOferta, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Ruta de oferta no encontrada'], 404);
@@ -96,12 +97,14 @@ class RutaOfertaController extends Controller
         }
     }
 
-    // Función adicional: Obtener todas las cargas asociadas con una ruta de oferta específica
+    // Obtener todas las cargas asociadas con una ruta de oferta específica con detalles relevantes
     public function getCargas($id)
     {
         try {
             $rutaOferta = RutaOferta::findOrFail($id);
-            $cargas = RutaCargaOferta::where('id_ruta_oferta', $id)->get();
+            $cargas = RutaCargaOferta::where('id_ruta_oferta', $id)
+                    ->with('cargaOferta.ofertaDetalle.produccion.producto')
+                    ->get();
 
             if ($cargas->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron cargas para esta ruta de oferta'], 404);

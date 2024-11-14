@@ -10,10 +10,10 @@ use Illuminate\Validation\ValidationException;
 
 class TransporteController extends Controller
 {
-    // Obtener todos los transportes
+    // Obtener todos los transportes con sus relaciones
     public function index()
     {
-        return response()->json(Transporte::all(), 200);
+        return response()->json(Transporte::with('conductor', 'rutaCargaPedidos', 'rutaCargaOfertas')->get(), 200);
     }
 
     // Crear un nuevo transporte
@@ -47,11 +47,11 @@ class TransporteController extends Controller
         }
     }
 
-    // Mostrar detalles de un transporte específico
+    // Mostrar detalles de un transporte específico con sus relaciones
     public function show($id)
     {
         try {
-            $transporte = Transporte::findOrFail($id);
+            $transporte = Transporte::with('conductor', 'rutaCargaPedidos', 'rutaCargaOfertas')->findOrFail($id);
             return response()->json($transporte, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Transporte no encontrado'], 404);
