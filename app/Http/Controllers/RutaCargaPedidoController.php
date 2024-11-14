@@ -15,7 +15,13 @@ class RutaCargaPedidoController extends Controller
     // Obtener todas las cargas asociadas a rutas de pedido
     public function index()
     {
-        $rutasCargasPedidos = RutaCargaPedido::with(['cargaPedido', 'rutaPedido', 'transporte'])->get();
+        $rutasCargasPedidos = RutaCargaPedido::with([
+            'cargaPedido.pedidoDetalle.producto',
+            'cargaPedido.pedidoDetalle.unidadMedida',
+            'cargaPedido.pedidoDetalle.pedido',
+            'rutaPedido',
+            'transporte.conductor'
+            ])->get();
         return response()->json($rutasCargasPedidos, 200);
     }
 
@@ -58,7 +64,13 @@ class RutaCargaPedidoController extends Controller
     public function show($id)
     {
         try {
-            $rutaCargaPedido = RutaCargaPedido::with(['cargaPedido', 'rutaPedido', 'transporte'])->findOrFail($id);
+            $rutaCargaPedido = RutaCargaPedido::with([
+            'cargaPedido.pedidoDetalle.producto',
+            'cargaPedido.pedidoDetalle.unidadMedida',
+            'cargaPedido.pedidoDetalle.pedido',
+            'rutaPedido',
+            'transporte.conductor'
+            ])->findOrFail($id);
             return response()->json($rutaCargaPedido, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Carga de ruta de pedido no encontrada'], 404);

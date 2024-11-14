@@ -13,7 +13,7 @@ class RutaPedidoController extends Controller
     // Obtener todas las rutas de pedidos
     public function index()
     {
-        return response()->json(RutaPedido::with('rutaCargas')->get(), 200);
+        return response()->json(RutaPedido::with('rutaCargaPedido')->get(), 200);
     }
 
     // Crear una nueva ruta de pedido
@@ -46,7 +46,7 @@ class RutaPedidoController extends Controller
     public function show($id)
     {
         try {
-            $rutaPedido = RutaPedido::with('rutaCargas')->findOrFail($id);
+            $rutaPedido = RutaPedido::with('rutaCargaPedido')->findOrFail($id);
             return response()->json($rutaPedido, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Ruta de pedido no encontrada'], 404);

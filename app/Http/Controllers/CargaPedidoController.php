@@ -14,7 +14,12 @@ class CargaPedidoController extends Controller
     // Obtener todas las cargas de pedidos
     public function index()
     {
-        return response()->json(CargaPedido::with('pedidoDetalle', 'rutaCargaPedido')->get(), 200);
+        return response()->json(CargaPedido::with(
+        'pedidoDetalle.pedido',
+        'pedidoDetalle.producto',
+        'pedidoDetalle.unidadMedida',
+        'rutaCargaPedido',
+        )->get(), 200);
     }
 
     // Crear una nueva carga de pedido
@@ -67,7 +72,11 @@ class CargaPedidoController extends Controller
     public function show($id)
     {
         try {
-            $cargaPedido = CargaPedido::with('pedidoDetalle', 'rutaCargaPedido')->findOrFail($id);
+            $cargaPedido = CargaPedido::with(
+        'pedidoDetalle.pedido',
+        'pedidoDetalle.producto',
+        'pedidoDetalle.unidadMedida',
+        'rutaCargaPedido',)->findOrFail($id);
             return response()->json($cargaPedido, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Carga de pedido no encontrada'], 404);

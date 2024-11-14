@@ -17,7 +17,7 @@ class RutaPedido extends Model
     ];
 
     // Relación con RutaCargaPedido
-    public function rutaCargas()
+    public function rutaCargaPedido()
     {
         return $this->hasMany(RutaCargaPedido::class, 'id_ruta_pedido', 'id');
     }
