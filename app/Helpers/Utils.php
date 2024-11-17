@@ -71,4 +71,98 @@ class Utils
             return false;
         });
     }
+
+    public static function h($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // Radio de la Tierra en kilómetros
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c; // Distancia en kilómetros
+    }
+
+
+    public static function findClosestCarga($cargas, $latPos, $lonPos)
+    {
+        $closestCarga = null;
+        $shortestDistance = PHP_INT_MAX; // Inicializar con un valor alto
+
+        foreach ($cargas as $carga) {
+            // Extraer latitud y longitud de la carga desde las relaciones
+            $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
+            $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+
+            // Calcular la distancia usando la fórmula de Haversine
+            $distance = self::h($latPos, $lonPos, $latCarga, $lonCarga);
+
+            // Comparar si es la distancia más corta
+            if ($distance < $shortestDistance) {
+                $shortestDistance = $distance;
+                $closestCarga = $carga; // Guardar solo la carga más cercana
+            }
+        }
+
+        return $closestCarga; // Devolver la carga más cercana
+    }
+
+    public static function getCargasMismaIdOfertaDetalle(Collection $cargas, int $idOfertaDetalle): Collection
+    {
+        return $cargas->filter(function ($carga) use ($idOfertaDetalle) {
+            return $carga->id_oferta_detalle == $idOfertaDetalle;
+        });
+    }
+
+    public static function getSigCargaMasCercana($cargas, $latPos, $lonPos, $idOfertaDetalle)
+    {
+        $closestCarga = null;
+        $shortestDistance = PHP_INT_MAX; // Inicializar con un valor alto
+
+        foreach ($cargas as $carga) {
+            if ($carga->id_oferta_detalle != $idOfertaDetalle) {
+                // Extraer latitud y longitud de la carga desde las relaciones
+                $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
+                $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+
+                // Calcular la distancia usando la fórmula de Haversine
+                $distance = self::h($latPos, $lonPos, $latCarga, $lonCarga);
+
+                // Comparar si es la distancia más corta
+                if ($distance < $shortestDistance) {
+                    $shortestDistance = $distance;
+                    $closestCarga = $carga; // Guardar solo la carga más cercana
+                }
+            }
+        }
+
+        return $closestCarga; // Devolver la carga más cercana
+    }
+
+
+    public static function getCargasSatisfacenAltransporte(Collection $cargas, int $cantidadRequerida): Collection
+    {
+        $cantidadAcumulada = 0;
+
+        return $cargas->filter(function ($carga) use (&$cantidadAcumulada, $cantidadRequerida) {
+            // Calcular la cantidad disponible para este detalle
+            $cargaKg = $carga->pesokg;
+
+            // Verificar si aún necesitamos acumular más cantidad
+            if ($cantidadAcumulada <= $cantidadRequerida) {
+                $cantidadAcumulada += $cargaKg;
+
+
+                return true;
+            }
+
+            // Si ya alcanzamos la cantidad requerida, no incluir más detalles
+            return false;
+        });
+    }
 }
