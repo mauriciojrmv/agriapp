@@ -22,7 +22,7 @@ class OfertaDetalle extends Model
         'estado'
     ];
 
-  /*   protected static function booted()
+     protected static function booted()
     {
         static::saving(function ($detalle) {
             if ($detalle->cantidad_fisico > 0) {
@@ -31,7 +31,7 @@ class OfertaDetalle extends Model
                 $detalle->preciounitario = 0; // Evitar división por cero
             }
         });
-    } */
+    }
 
     public function oferta()
     {
