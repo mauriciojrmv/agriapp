@@ -84,7 +84,7 @@ class GenerarRutas extends Command
             $lon_mi = $transporte->conductor->ubicacion_longitud;
             $pesoMax = $transporte->capacidadmaxkg;
             $cargaMasCercana = Utils::findClosestCarga($cargas, $lat_mi, $lon_mi);
-            echo $cargaMasCercana->id . " " . $cargaMasCercana->id_oferta_detalle . " " . $cargaMasCercana->pesokg, PHP_EOL;
+            //echo $cargaMasCercana->id . " " . $cargaMasCercana->id_oferta_detalle . " " . $cargaMasCercana->pesokg, PHP_EOL;
             $idOfertaDetalle =  $cargaMasCercana->id_oferta_detalle;
             $cargasConMismoIdOferta = Utils::getCargasMismaIdOfertaDetalle($cargas, $idOfertaDetalle);
             $cargasQueCumplen = Utils::getCargaSatisfacenAltransporteC($cargasConMismoIdOferta, $pesoMax);
@@ -94,8 +94,8 @@ class GenerarRutas extends Command
              * * EXISTE MAS DE UNA SOLA CARGA QUE LLENA TODA LA CAPACIDAD
              */
             if ($cargasQueCumplen->count() > 1) {
-                echo "Existe mas de una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
-                echo "Cantidad: " . $cargasQueCumplen->count(), PHP_EOL;
+                //echo "Existe mas de una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
+                //echo "Cantidad: " . $cargasQueCumplen->count(), PHP_EOL;
 
                 $rutaOferta  = RutaOferta::create([
                     'fecha_recogida' => Carbon::now(),
@@ -109,7 +109,7 @@ class GenerarRutas extends Command
                         RutaCargaOferta::insert([[
                             'id_carga_oferta' => $carga->id,
                             'id_ruta_oferta' => $rutaOferta->id,
-                            'id_transporte' => 1,
+                            'id_transporte' => $transporte->id,
                             'orden' => 1,
                             'estado' => 'activo',
                             'distancia' => 0,
@@ -121,7 +121,7 @@ class GenerarRutas extends Command
                     }
                 }
             } elseif ($cargasQueCumplen->count() == 1) {
-                echo "Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
+                //echo "Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
 
                 $rutaOferta  = RutaOferta::create([
                     'fecha_recogida' => Carbon::now(),
@@ -134,7 +134,7 @@ class GenerarRutas extends Command
                     RutaCargaOferta::insert([[
                         'id_carga_oferta' => $carga->id,
                         'id_ruta_oferta' => $rutaOferta->id,
-                        'id_transporte' => 1,
+                        'id_transporte' => $transporte->id,
                         'orden' => 1,
                         'estado' => 'activo',
                         'distancia' => 0,
@@ -145,7 +145,7 @@ class GenerarRutas extends Command
                 }
                 $rutaOferta->save();
             } elseif ($cargasQueCumplen->count() == 0) {
-                echo "No Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
+                //echo "No Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
                 $sumcargasQueCumplen = Utils::getCargasSatisfacenAltransporte($cargasConMismoIdOferta, $pesoMax);
                 $mas10 = $pesoMax + ($pesoMax * 10 / 100);
                 $menos10 = $pesoMax - ($pesoMax * 10 / 100);
@@ -162,7 +162,7 @@ class GenerarRutas extends Command
                         RutaCargaOferta::insert([[
                             'id_carga_oferta' => $carga->id,
                             'id_ruta_oferta' => $rutaOferta->id,
-                            'id_transporte' => 1,
+                            'id_transporte' => $transporte->id,
                             'orden' => 1,
                             'estado' => 'activo',
                             'distancia' => 0,
@@ -203,7 +203,7 @@ class GenerarRutas extends Command
                 $table->render(); */
             }
 
-            break;
+    
         }
 
         /*         $data = [];
