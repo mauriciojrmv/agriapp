@@ -152,9 +152,12 @@ class Utils
         return $cargas->filter(function ($carga) use (&$cantidadAcumulada, $cantidadRequerida) {
             // Calcular la cantidad disponible para este detalle
             $cargaKg = $carga->pesokg;
+            $mas10 = $cantidadRequerida + ($cantidadRequerida * 10 / 100);
+            $menos10 = $cantidadRequerida - ($cantidadRequerida * 10 / 100);
+            $sum = $cargaKg + $cantidadAcumulada;
 
             // Verificar si aún necesitamos acumular más cantidad
-            if ($cantidadAcumulada <= $cantidadRequerida) {
+            if ($cantidadAcumulada <= $cantidadRequerida && $sum <= $cantidadRequerida ) {
                 $cantidadAcumulada += $cargaKg;
 
 
@@ -162,6 +165,26 @@ class Utils
             }
 
             // Si ya alcanzamos la cantidad requerida, no incluir más detalles
+            return false;
+        });
+    }
+
+    public static function getCargaSatisfacenAltransporteC(Collection $cargas, float $cantidadRequerida): Collection
+    {
+
+        return $cargas->filter(function ($carga) use ( $cantidadRequerida) {
+            $cargaKg = $carga->pesokg;
+            $mas10 = $cantidadRequerida + ($cantidadRequerida * 10 / 100);
+            $menos10 = $cantidadRequerida - ($cantidadRequerida * 10 / 100);
+
+
+
+            if ($cargaKg >= $menos10 && $cargaKg <= $mas10 ) {
+
+          
+                return true;
+            }
+
             return false;
         });
     }
