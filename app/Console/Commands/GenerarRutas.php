@@ -102,7 +102,9 @@ class GenerarRutas extends Command
                 $rutaOferta->save();
                 //$deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
                 $deviceToken = $transporte->tokendevice;
-                Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                if ($deviceToken) {
+                    Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                }
             } elseif ($cargasQueCumplen->count() == 1) {
                 //echo "Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
                 $locations = [];
@@ -134,7 +136,9 @@ class GenerarRutas extends Command
                 $rutaOferta->save();
                 //$deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
                 $deviceToken = $transporte->tokendevice;
-                Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                if ($deviceToken) {
+                    Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                }
             } elseif ($cargasQueCumplen->count() == 0) {
                 //echo "No Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
                 $sumcargasQueCumplen = Utils::getCargasSatisfacenAltransporte($cargasConMismoIdOferta, $pesoMax);
@@ -171,7 +175,9 @@ class GenerarRutas extends Command
 
                     // $deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
                     $deviceToken = $transporte->tokendevice;
-                    Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                    if ($deviceToken) {
+                        Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                    }
                 } else {
                     $peso70 = $pesoMax - ($pesoMax * 40 / 100);
                     $peso50 = $pesoMax - ($pesoMax * 50 / 100);
