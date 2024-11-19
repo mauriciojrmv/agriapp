@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 
+
 class ClienteController extends Controller
 {
     // Obtener todos los clientes
@@ -40,18 +41,24 @@ class ClienteController extends Controller
                 'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
-            $data = $request->all();
-            $data['password'] = Hash::make($request->password); // Cifrar la contraseña
+        $data = $request->all();
+        $data['password'] = Hash::make($request->password); // Cifrar la contraseña
 
-            $cliente = Cliente::create($data);
-            return response()->json($cliente, 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Error de validación',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        $cliente = Cliente::create($data);
+
+        return response()->json($cliente, 201);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Error de validación',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error al crear el cliente',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     // Mostrar detalles de un cliente específico
     public function show($id)
