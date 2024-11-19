@@ -39,9 +39,25 @@ class OfertaDetalleController extends Controller
                 'id_produccion' => 'required|exists:produccions,id',
                 'descripcion' => 'nullable|string|max:255',
                 'cantidad_fisico' => 'required|numeric|min:1',
-                'cantidad_comprometido' => 'nullable|numeric|min:0',
                 'precio' => 'required|numeric|min:0',
                 'estado' => 'sometimes|string|max:255'
+            ], [
+                'id_oferta.required' => 'La oferta es obligatoria.',
+                'id_oferta.exists' => 'La oferta seleccionada no es válida.',
+                'id_unidadmedida.required' => 'La unidad de medida es obligatoria.',
+                'id_unidadmedida.exists' => 'La unidad de medida seleccionada no es válida.',
+                'id_moneda.required' => 'La moneda es obligatoria.',
+                'id_moneda.exists' => 'La moneda seleccionada no es válida.',
+                'id_produccion.required' => 'La producción es obligatoria.',
+                'id_produccion.exists' => 'La producción seleccionada no es válida.',
+                'descripcion.max' => 'La descripción no puede exceder 255 caracteres.',
+                'cantidad_fisico.required' => 'La cantidad física es obligatoria.',
+                'cantidad_fisico.numeric' => 'La cantidad física debe ser un número.',
+                'cantidad_fisico.min' => 'La cantidad física debe ser al menos 1.',
+                'precio.required' => 'El precio es obligatorio.',
+                'precio.numeric' => 'El precio debe ser un número.',
+                'precio.min' => 'El precio no puede ser negativo.',
+                'estado.max' => 'El estado no puede exceder 255 caracteres.'
             ]);
 
             // Obtener la oferta y la producción asociada
@@ -101,6 +117,23 @@ class OfertaDetalleController extends Controller
                 'cantidad_comprometido' => 'nullable|numeric|min:0',
                 'precio' => 'sometimes|required|numeric|min:0',
                 'estado' => 'sometimes|string|max:255'
+            ], [
+                'id_oferta.required' => 'La oferta es obligatoria.',
+                'id_oferta.exists' => 'La oferta seleccionada no es válida.',
+                'id_unidadmedida.required' => 'La unidad de medida es obligatoria.',
+                'id_unidadmedida.exists' => 'La unidad de medida seleccionada no es válida.',
+                'id_moneda.required' => 'La moneda es obligatoria.',
+                'id_moneda.exists' => 'La moneda seleccionada no es válida.',
+                'descripcion.max' => 'La descripción no puede exceder 255 caracteres.',
+                'cantidad_fisico.required' => 'La cantidad física es obligatoria.',
+                'cantidad_fisico.numeric' => 'La cantidad física debe ser un número.',
+                'cantidad_fisico.min' => 'La cantidad física debe ser al menos 1.',
+                'cantidad_comprometido.numeric' => 'La cantidad comprometida debe ser un número.',
+                'cantidad_comprometido.min' => 'La cantidad comprometida no puede ser negativa.',
+                'precio.required' => 'El precio es obligatorio.',
+                'precio.numeric' => 'El precio debe ser un número.',
+                'precio.min' => 'El precio no puede ser negativo.',
+                'estado.max' => 'El estado no puede exceder 255 caracteres.'
             ]);
 
             $detalle->update($request->all());
