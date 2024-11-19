@@ -49,33 +49,6 @@ class GenerarRutas extends Command
 
         $transportes = Transporte::all();
 
-        /* 
-
-
-
-
-        $data = [];
-        foreach ($transportes as $transporte) {
-            $data[] = [
-                $transporte->id,
-                $transporte->capacidadmaxkg,
-                $transporte->conductor->ubicacion_latitud,
-                $transporte->conductor->ubicacion_longitud,
-            ];
-        }
-
-        // Crear la salida en consola
-        $output = new ConsoleOutput();
-        $table = new Table($output);
-
-        // Definir encabezados y filas
-        $table
-            ->setHeaders(['id', 'capacidadmaxkg', 'ubicacion_latitud', 'ubicacion_longitud'])
-            ->setRows($data);
-
-        // Renderizar la tabla
-        //$table->render();
- */
 
         foreach ($transportes as $transporte) {
 
@@ -96,6 +69,7 @@ class GenerarRutas extends Command
             if ($cargasQueCumplen->count() > 1) {
                 //echo "Existe mas de una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
                 //echo "Cantidad: " . $cargasQueCumplen->count(), PHP_EOL;
+                $locations = [];
 
                 $rutaOferta  = RutaOferta::create([
                     'fecha_recogida' => Carbon::now(),
@@ -116,13 +90,22 @@ class GenerarRutas extends Command
                             'created_at' => now(),
                             'updated_at' => now()
                         ]]);
+
                         $rutaOferta->capacidad_utilizada = $carga->pesokg;
+                        $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
+                        $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+                        $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
                         $sw = false;
                     }
                 }
+
+                $rutaOferta->save();
+                //$deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
+                $deviceToken = $transporte->tokendevice;
+                Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
             } elseif ($cargasQueCumplen->count() == 1) {
                 //echo "Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
-
+                $locations = [];
                 $rutaOferta  = RutaOferta::create([
                     'fecha_recogida' => Carbon::now(),
                     'capacidad_utilizada' => 0,
@@ -141,9 +124,17 @@ class GenerarRutas extends Command
                         'created_at' => now(),
                         'updated_at' => now()
                     ]]);
+
                     $rutaOferta->capacidad_utilizada = $carga->pesokg;
+                    $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
+                    $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+                    $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
                 }
+
                 $rutaOferta->save();
+                //$deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
+                $deviceToken = $transporte->tokendevice;
+                Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
             } elseif ($cargasQueCumplen->count() == 0) {
                 //echo "No Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
                 $sumcargasQueCumplen = Utils::getCargasSatisfacenAltransporte($cargasConMismoIdOferta, $pesoMax);
@@ -151,6 +142,7 @@ class GenerarRutas extends Command
                 $menos10 = $pesoMax - ($pesoMax * 10 / 100);
                 $sumaPesoKg = $sumcargasQueCumplen->sum('pesokg');
                 if ($sumaPesoKg >= $menos10 && $sumaPesoKg <= $mas10) {
+                    $locations = [];
                     $rutaOferta  = RutaOferta::create([
                         'fecha_recogida' => Carbon::now(),
                         'capacidad_utilizada' => 0,
@@ -170,13 +162,21 @@ class GenerarRutas extends Command
                             'updated_at' => now()
                         ]]);
                         $rutaOferta->capacidad_utilizada += $carga->pesokg;
+                        $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
+                        $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+                        $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
                     }
                     $rutaOferta->save();
+
+
+                    // $deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
+                    $deviceToken = $transporte->tokendevice;
+                    Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
                 } else {
                     $peso70 = $pesoMax - ($pesoMax * 40 / 100);
                     $peso50 = $pesoMax - ($pesoMax * 50 / 100);
                     if ($sumaPesoKg >= $peso50 && $sumaPesoKg <= $peso70) {
-                    }else {
+                    } else {
                         echo "Ni la suma de todas las cargas con la misma IdOferta cumplen", PHP_EOL;
                     }
                 }
@@ -202,8 +202,6 @@ class GenerarRutas extends Command
                 // Renderizar la tabla
                 $table->render(); */
             }
-
-    
         }
 
         /*         $data = [];

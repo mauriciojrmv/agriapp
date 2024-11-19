@@ -3,7 +3,9 @@
 namespace App\Helpers;
 
 use App\Models\OfertaDetalle;
+use Firebase\JWT\JWT;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 
 class Utils
 {
@@ -157,7 +159,7 @@ class Utils
             $sum = $cargaKg + $cantidadAcumulada;
 
             // Verificar si aún necesitamos acumular más cantidad
-            if ($cantidadAcumulada <= $cantidadRequerida && $sum <= $cantidadRequerida ) {
+            if ($cantidadAcumulada <= $cantidadRequerida && $sum <= $cantidadRequerida) {
                 $cantidadAcumulada += $cargaKg;
 
 
@@ -172,20 +174,89 @@ class Utils
     public static function getCargaSatisfacenAltransporteC(Collection $cargas, float $cantidadRequerida): Collection
     {
 
-        return $cargas->filter(function ($carga) use ( $cantidadRequerida) {
+        return $cargas->filter(function ($carga) use ($cantidadRequerida) {
             $cargaKg = $carga->pesokg;
             $mas10 = $cantidadRequerida + ($cantidadRequerida * 10 / 100);
             $menos10 = $cantidadRequerida - ($cantidadRequerida * 10 / 100);
 
 
 
-            if ($cargaKg >= $menos10 && $cargaKg <= $mas10 ) {
+            if ($cargaKg >= $menos10 && $cargaKg <= $mas10) {
 
-          
+
                 return true;
             }
 
             return false;
         });
+    }
+
+
+    public static function getBearerToken()
+    {
+        $serviceAccountPath = storage_path('app/firebase/conductor-app-daf91-firebase-adminsdk-zzy1x-d6842a53e6.json');
+        // Leer el archivo JSON
+        $serviceAccount = json_decode(file_get_contents($serviceAccountPath), true);
+
+        $now = time();
+        $payload = [
+            'iss' => $serviceAccount['client_email'], // Emisor del token
+            'sub' => $serviceAccount['client_email'], // Sujeto del token
+            'aud' => $serviceAccount['token_uri'],    // URL de autorización
+            'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+            'iat' => $now,
+            'exp' => $now + 3600,
+        ];
+
+        // Generar el JWT
+        $jwt = JWT::encode($payload, $serviceAccount['private_key'], 'RS256');
+
+        // Solicitar el Bearer Token
+        $response = Http::asForm()->post($serviceAccount['token_uri'], [
+            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'assertion' => $jwt,
+        ]);
+
+        if ($response->successful()) {
+            return $response->json()['access_token'];
+        }
+
+
+        throw new \Exception('Error al obtener el Bearer Token: ' . $response->body());
+    }
+
+
+    public  static function  sendFcmNotificationWithLocations($deviceToken, $title, $body, $locations)
+    {
+        $bearerToken = self::getBearerToken(); // Genera el token dinámicamente
+
+        $url = 'https://fcm.googleapis.com/v1/projects/conductor-app-daf91/messages:send';
+
+        // Estructura del mensaje
+        $payload = [
+            'message' => [
+                'token' => $deviceToken,
+                'notification' => [
+                    'title' => $title,
+                    'body' => $body,
+                ],
+                'data' => [
+                    'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
+                ],
+            ],
+        ];
+
+        // Enviar solicitud a Firebase
+        $response = Http::withToken($bearerToken)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+            ->post($url, $payload);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        throw new \Exception('Error al enviar la notificación: ' . $response->body());
     }
 }
