@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Pedido;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class ClienteController extends Controller
 {
@@ -27,7 +28,7 @@ class ClienteController extends Controller
                 'email' => 'required|email|unique:clientes,email',
                 'direccion' => 'required|string|max:255',
                 'password' => 'required|string|min:8',
-                'tokendevice' => 'nullable|string|unique:conductors,tokendevice'
+                'tokendevice' => 'nullable|string|unique:clientes,tokendevice'
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
                 'apellido.required' => 'El campo apellido es obligatorio.',
@@ -37,10 +38,12 @@ class ClienteController extends Controller
                 'password.required' => 'El campo contraseña es obligatorio.',
                 'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
                 'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
-
             ]);
 
-            $cliente = Cliente::create($request->all());
+            $data = $request->all();
+            $data['password'] = Hash::make($request->password); // Cifrar la contraseña
+
+            $cliente = Cliente::create($data);
             return response()->json($cliente, 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -74,7 +77,7 @@ class ClienteController extends Controller
                 'email' => 'sometimes|required|email|unique:clientes,email,' . $id,
                 'direccion' => 'sometimes|required|string|max:255',
                 'password' => 'sometimes|required|string|min:8',
-                'tokendevice' => 'nullable|string|unique:conductors,tokendevice,' . $id
+                'tokendevice' => 'nullable|string|unique:clientes,tokendevice,' . $id
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
                 'apellido.required' => 'El campo apellido es obligatorio.',
@@ -84,7 +87,12 @@ class ClienteController extends Controller
                 'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
-            $cliente->update($request->all());
+            $data = $request->all();
+            if ($request->has('password')) {
+                $data['password'] = Hash::make($request->password); // Cifrar si se proporciona una nueva contraseña
+            }
+
+            $cliente->update($data);
             return response()->json($cliente, 200);
         } catch (ValidationException $e) {
             return response()->json([
