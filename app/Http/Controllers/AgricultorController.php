@@ -7,6 +7,7 @@ use App\Models\Agricultor;
 use App\Models\Produccion;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class AgricultorController extends Controller
 {
@@ -31,7 +32,8 @@ class AgricultorController extends Controller
                 'nit' => 'required|string|unique:agricultors,nit',
                 'carnet' => 'required|string|unique:agricultors,carnet',
                 'licencia_funcionamiento' => 'nullable|string|max:50',
-                'estado' => 'required|string'
+                'estado' => 'required|string',
+                'tokendevice' => 'nullable|string|unique:agricultors,tokendevice'
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
                 'apellido.required' => 'El campo apellido es obligatorio.',
@@ -41,10 +43,14 @@ class AgricultorController extends Controller
                 'password.required' => 'El campo contraseña es obligatorio.',
                 'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
                 'nit.unique' => 'Este NIT ya está registrado.',
-                'carnet.unique' => 'Este carnet ya está registrado.'
+                'carnet.unique' => 'Este carnet ya está registrado.',
+                'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
-            $agricultor = Agricultor::create($request->all());
+            $data = $request->all();
+            $data['password'] = Hash::make($request->password); // Cifrar la contraseña
+
+            $agricultor = Agricultor::create($data);
             return response()->json($agricultor, 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -82,7 +88,8 @@ class AgricultorController extends Controller
                 'nit' => 'sometimes|required|string|unique:agricultors,nit,' . $id,
                 'carnet' => 'sometimes|required|string|unique:agricultors,carnet,' . $id,
                 'licencia_funcionamiento' => 'nullable|string|max:50',
-                'estado' => 'sometimes|required|string'
+                'estado' => 'sometimes|required|string',
+                'tokendevice' => 'nullable|string|unique:agricultors,tokendevice,' . $id
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
                 'apellido.required' => 'El campo apellido es obligatorio.',
@@ -90,10 +97,16 @@ class AgricultorController extends Controller
                 'email.unique' => 'Este correo electrónico ya está registrado.',
                 'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
                 'nit.unique' => 'Este NIT ya está registrado.',
-                'carnet.unique' => 'Este carnet ya está registrado.'
+                'carnet.unique' => 'Este carnet ya está registrado.',
+                'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
-            $agricultor->update($request->all());
+            $data = $request->all();
+            if ($request->has('password')) {
+                $data['password'] = Hash::make($request->password); // Cifrar si se proporciona una nueva contraseña
+            }
+
+            $agricultor->update($data);
             return response()->json($agricultor, 200);
         } catch (ValidationException $e) {
             return response()->json([

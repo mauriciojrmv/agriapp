@@ -26,7 +26,8 @@ class ClienteController extends Controller
                 'telefono' => 'required|string|max:20|unique:clientes,telefono',
                 'email' => 'required|email|unique:clientes,email',
                 'direccion' => 'required|string|max:255',
-                'password' => 'required|string|min:8'
+                'password' => 'required|string|min:8',
+                'tokendevice' => 'nullable|string|unique:conductors,tokendevice'
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
                 'apellido.required' => 'El campo apellido es obligatorio.',
@@ -34,7 +35,9 @@ class ClienteController extends Controller
                 'email.required' => 'El campo email es obligatorio.',
                 'email.unique' => 'Este correo electrónico ya está registrado.',
                 'password.required' => 'El campo contraseña es obligatorio.',
-                'password.min' => 'La contraseña debe tener al menos 8 caracteres.'
+                'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+                'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
+
             ]);
 
             $cliente = Cliente::create($request->all());
@@ -70,13 +73,15 @@ class ClienteController extends Controller
                 'telefono' => 'sometimes|required|string|max:20|unique:clientes,telefono,' . $id,
                 'email' => 'sometimes|required|email|unique:clientes,email,' . $id,
                 'direccion' => 'sometimes|required|string|max:255',
-                'password' => 'sometimes|required|string|min:8'
+                'password' => 'sometimes|required|string|min:8',
+                'tokendevice' => 'nullable|string|unique:conductors,tokendevice,' . $id
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
                 'apellido.required' => 'El campo apellido es obligatorio.',
                 'telefono.unique' => 'Este número de teléfono ya está registrado.',
                 'email.unique' => 'Este correo electrónico ya está registrado.',
-                'password.min' => 'La contraseña debe tener al menos 8 caracteres.'
+                'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+                'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
             $cliente->update($request->all());

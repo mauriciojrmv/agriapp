@@ -9,7 +9,11 @@ class Conductor extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'apellido', 'carnet', 'licencia_conducir', 'fecha_nacimiento', 'direccion', 'email', 'password', 'ubicacion_latitud', 'ubicacion_longitud', 'estado'];
+    protected $fillable = [
+        'nombre', 'apellido', 'carnet', 'licencia_conducir',
+        'fecha_nacimiento', 'direccion', 'email', 'password',
+        'ubicacion_latitud', 'ubicacion_longitud', 'estado', 'tokendevice' // Incluye tokendevice
+    ];
 
     public function transportes()
     {

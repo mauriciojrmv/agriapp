@@ -9,7 +9,7 @@ class Agricultor extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'apellido', 'telefono', 'email', 'direccion', 'password', 'informacion_bancaria', 'nit', 'carnet', 'licencia_funcionamiento', 'estado'];
+    protected $fillable = ['nombre', 'apellido', 'telefono', 'email', 'direccion', 'password', 'informacion_bancaria', 'nit', 'carnet', 'licencia_funcionamiento', 'estado', 'tokendevice'];
 
     public function terrenos()
     {

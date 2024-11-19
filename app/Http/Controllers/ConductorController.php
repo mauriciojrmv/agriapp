@@ -1,13 +1,12 @@
 <?php
 
-// App\Http\Controllers\ConductorController.php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Conductor;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class ConductorController extends Controller
 {
@@ -32,10 +31,32 @@ class ConductorController extends Controller
                 'password' => 'required|string|min:8',
                 'ubicacion_latitud' => 'nullable|numeric',
                 'ubicacion_longitud' => 'nullable|numeric',
-                'estado' => 'required|string'
+                'estado' => 'required|string',
+                'tokendevice' => 'nullable|string|unique:conductors,tokendevice'
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'apellido.required' => 'El campo apellido es obligatorio.',
+                'carnet.required' => 'El campo carnet es obligatorio.',
+                'carnet.unique' => 'El carnet ya está en uso.',
+                'licencia_conducir.required' => 'El campo licencia de conducir es obligatorio.',
+                'fecha_nacimiento.required' => 'El campo fecha de nacimiento es obligatorio.',
+                'direccion.required' => 'El campo dirección es obligatorio.',
+                'email.required' => 'El campo email es obligatorio.',
+                'email.email' => 'El campo email debe ser una dirección de correo válida.',
+                'email.unique' => 'El email ya está en uso.',
+                'password.required' => 'El campo contraseña es obligatorio.',
+                'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+                'ubicacion_latitud.numeric' => 'La latitud debe ser un número.',
+                'ubicacion_longitud.numeric' => 'La longitud debe ser un número.',
+                'estado.required' => 'El campo estado es obligatorio.',
+                'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
-            $conductor = Conductor::create($request->all());
+            // Crear el conductor encriptando la contraseña
+            $data = $request->all();
+            $data['password'] = Hash::make($request->password);
+
+            $conductor = Conductor::create($data);
             return response()->json($conductor, 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -73,10 +94,33 @@ class ConductorController extends Controller
                 'password' => 'sometimes|required|string|min:8',
                 'ubicacion_latitud' => 'nullable|numeric',
                 'ubicacion_longitud' => 'nullable|numeric',
-                'estado' => 'sometimes|required|string'
+                'estado' => 'sometimes|required|string',
+                'tokendevice' => 'nullable|string|unique:conductors,tokendevice,' . $id
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'apellido.required' => 'El campo apellido es obligatorio.',
+                'carnet.required' => 'El campo carnet es obligatorio.',
+                'carnet.unique' => 'El carnet ya está en uso.',
+                'licencia_conducir.required' => 'El campo licencia de conducir es obligatorio.',
+                'fecha_nacimiento.required' => 'El campo fecha de nacimiento es obligatorio.',
+                'direccion.required' => 'El campo dirección es obligatorio.',
+                'email.required' => 'El campo email es obligatorio.',
+                'email.email' => 'El campo email debe ser una dirección de correo válida.',
+                'email.unique' => 'El email ya está en uso.',
+                'password.required' => 'El campo contraseña es obligatorio.',
+                'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+                'ubicacion_latitud.numeric' => 'La latitud debe ser un número.',
+                'ubicacion_longitud.numeric' => 'La longitud debe ser un número.',
+                'estado.required' => 'El campo estado es obligatorio.',
+                'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
-            $conductor->update($request->all());
+            $data = $request->all();
+            if ($request->has('password')) {
+                $data['password'] = Hash::make($request->password);
+            }
+
+            $conductor->update($data);
             return response()->json($conductor, 200);
         } catch (ValidationException $e) {
             return response()->json([
@@ -100,7 +144,7 @@ class ConductorController extends Controller
         }
     }
 
-    // Obtener los transportes de un conductor específico (método adicional si es necesario)
+    // Obtener los transportes de un conductor específico
     public function getTransportes($id)
     {
         try {
