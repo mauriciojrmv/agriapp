@@ -22,10 +22,6 @@ class OfertaDetalle extends Model
         'estado'
     ];
 
-    protected $attributes = [
-        'cantidad_comprometido' => 0, // Valor predeterminado para cantidad_comprometido
-    ];
-
      protected static function booted()
     {
         static::saving(function ($detalle) {

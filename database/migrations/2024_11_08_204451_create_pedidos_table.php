@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('fecha_entrega');
             $table->decimal('ubicacion_latitud', 10, 7);
             $table->decimal('ubicacion_longitud', 10, 7);
-            $table->string('estado');
+            $table->string('estado')->default('pendiente');
             $table->timestamps();
         });
 

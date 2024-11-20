@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('nit')->unique();
             $table->string('carnet')->unique();
             $table->string('licencia_funcionamiento')->unique();
-            $table->string('estado');
+            $table->string('estado')->default('activo');
             $table->timestamps();
         });
 

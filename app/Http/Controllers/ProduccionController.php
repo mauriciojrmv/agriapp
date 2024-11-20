@@ -28,7 +28,7 @@ class ProduccionController extends Controller
                 'cantidad' => 'required|numeric|min:1',
                 'fecha_cosecha' => 'required|date',
                 'fecha_expiracion' => 'nullable|date|after_or_equal:fecha_cosecha',
-                'estado' => 'required|string|max:255'
+                'estado' => 'sometimes|required|string|in:activo,inactivo'
             ], [
                 'id_terreno.required' => 'El campo id_terreno es obligatorio.',
                 'id_terreno.exists' => 'El terreno especificado no existe.',
@@ -40,7 +40,7 @@ class ProduccionController extends Controller
                 'id_unidadmedida.exists' => 'La unidad de medida especificada no existe.',
                 'cantidad.required' => 'El campo cantidad es obligatorio.',
                 'fecha_cosecha.required' => 'El campo fecha de cosecha es obligatorio.',
-                'estado.required' => 'El campo estado es obligatorio.'
+                'estado.max' => 'El campo estado debe ser activo o inactivo.'
             ]);
 
             $produccion = Produccion::create($request->all());
@@ -79,12 +79,13 @@ class ProduccionController extends Controller
                 'cantidad' => 'sometimes|required|numeric|min:1',
                 'fecha_cosecha' => 'sometimes|required|date',
                 'fecha_expiracion' => 'nullable|date|after_or_equal:fecha_cosecha',
-                'estado' => 'sometimes|required|string|max:255'
+                'estado' => 'sometimes|required|string|in:activo,inactivo'
             ], [
                 'id_terreno.exists' => 'El terreno especificado no existe.',
                 'id_temporada.exists' => 'La temporada especificada no existe.',
                 'id_producto.exists' => 'El producto especificado no existe.',
-                'id_unidadmedida.exists' => 'La unidad de medida especificada no existe.'
+                'id_unidadmedida.exists' => 'La unidad de medida especificada no existe.',
+                'estado.in' => 'El campo estado solo puede tener los valores "activo" o "inactivo".'
             ]);
 
             $produccion->update($request->all());

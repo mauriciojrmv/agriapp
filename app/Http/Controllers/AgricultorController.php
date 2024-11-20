@@ -32,7 +32,7 @@ class AgricultorController extends Controller
                 'nit' => 'required|string|unique:agricultors,nit',
                 'carnet' => 'required|string|unique:agricultors,carnet',
                 'licencia_funcionamiento' => 'nullable|string|max:50',
-                'estado' => 'required|string',
+                'estado' => 'sometimes|required|string|in:activo,inactivo',
                 'tokendevice' => 'nullable|string|unique:agricultors,tokendevice'
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
@@ -44,6 +44,7 @@ class AgricultorController extends Controller
                 'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
                 'nit.unique' => 'Este NIT ya está registrado.',
                 'carnet.unique' => 'Este carnet ya está registrado.',
+                'estado.in' => 'El campo estado solo puede tener los valores "activo" o "inactivo".',
                 'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
@@ -88,7 +89,7 @@ class AgricultorController extends Controller
                 'nit' => 'sometimes|required|string|unique:agricultors,nit,' . $id,
                 'carnet' => 'sometimes|required|string|unique:agricultors,carnet,' . $id,
                 'licencia_funcionamiento' => 'nullable|string|max:50',
-                'estado' => 'sometimes|required|string',
+                'estado' => 'sometimes|required|string|in:activo,inactivo',
                 'tokendevice' => 'nullable|string|unique:agricultors,tokendevice,' . $id
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
@@ -98,6 +99,7 @@ class AgricultorController extends Controller
                 'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
                 'nit.unique' => 'Este NIT ya está registrado.',
                 'carnet.unique' => 'Este carnet ya está registrado.',
+                'estado.in' => 'El campo estado solo puede tener los valores "activo" o "inactivo".',
                 'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 

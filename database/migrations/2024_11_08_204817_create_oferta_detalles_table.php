@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('id_moneda')->constrained('monedas');
             $table->text('descripcion')->nullable();
             $table->integer('cantidad_fisico');
-            $table->integer('cantidad_comprometido');
+            $table->integer('cantidad_comprometido')->default(0);
             $table->decimal('precio', 10, 2);
             $table->decimal('preciounitario', 10, 2)->nullable();
             $table->string('estado')->default('activo');

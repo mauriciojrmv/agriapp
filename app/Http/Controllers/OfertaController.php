@@ -32,14 +32,14 @@ class OfertaController extends Controller
                 'id_produccion' => 'required|exists:produccions,id',
                 'fecha_creacion' => 'required|date',
                 'fecha_expiracion' => 'required|date|after_or_equal:fecha_creacion',
-                'estado' => 'required|string|max:255'
+                'estado' => 'sometimes|required|string|in:activo,inactivo',
             ], [
                 'id_produccion.required' => 'El campo id_produccion es obligatorio.',
                 'id_produccion.exists' => 'La producción especificada no existe.',
                 'fecha_creacion.required' => 'El campo fecha de creación es obligatorio.',
                 'fecha_expiracion.required' => 'El campo fecha de expiración es obligatorio.',
                 'fecha_expiracion.after_or_equal' => 'La fecha de expiración debe ser igual o posterior a la fecha de creación.',
-                'estado.required' => 'El campo estado es obligatorio.'
+                'estado.in' => 'El campo estado solo puede ser activo e inactivo.'
             ]);
 
             $oferta = Oferta::create($request->all());
@@ -78,10 +78,11 @@ class OfertaController extends Controller
                 'id_produccion' => 'sometimes|required|exists:produccions,id',
                 'fecha_creacion' => 'sometimes|required|date',
                 'fecha_expiracion' => 'sometimes|required|date|after_or_equal:fecha_creacion',
-                'estado' => 'sometimes|required|string|max:255'
+                'estado' => 'sometimes|required|string|in:activo,inactivo',
             ], [
                 'id_produccion.exists' => 'La producción especificada no existe.',
-                'fecha_expiracion.after_or_equal' => 'La fecha de expiración debe ser igual o posterior a la fecha de creación.'
+                'fecha_expiracion.after_or_equal' => 'La fecha de expiración debe ser igual o posterior a la fecha de creación.',
+                'estado.in' => 'El estado solo puede ser activo e inactivo.'
             ]);
 
             $oferta->update($request->all());

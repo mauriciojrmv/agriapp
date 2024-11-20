@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('password');
             $table->decimal('ubicacion_latitud', 10, 7)->nullable();
             $table->decimal('ubicacion_longitud', 10, 7)->nullable();
-            $table->string('estado');
+            $table->string('estado')->default('activo');
             $table->timestamps();
         });
     }

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('cantidad');
             $table->date('fecha_cosecha');
             $table->date('fecha_expiracion')->nullable();
-            $table->string('estado');
+            $table->string('estado')->default('activo');
             $table->timestamps();
         });
 

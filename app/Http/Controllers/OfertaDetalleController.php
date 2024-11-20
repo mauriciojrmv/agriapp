@@ -40,7 +40,7 @@ class OfertaDetalleController extends Controller
                 'descripcion' => 'nullable|string|max:255',
                 'cantidad_fisico' => 'required|numeric|min:1',
                 'precio' => 'required|numeric|min:0',
-                'estado' => 'sometimes|string|max:255'
+                'estado' => 'sometimes|required|string|in:activo,inactivo'
             ], [
                 'id_oferta.required' => 'La oferta es obligatoria.',
                 'id_oferta.exists' => 'La oferta seleccionada no es válida.',
@@ -57,7 +57,7 @@ class OfertaDetalleController extends Controller
                 'precio.required' => 'El precio es obligatorio.',
                 'precio.numeric' => 'El precio debe ser un número.',
                 'precio.min' => 'El precio no puede ser negativo.',
-                'estado.max' => 'El estado no puede exceder 255 caracteres.'
+                'estado.in' => 'El campo estado solo puede tener los valores "activo" o "inactivo".'
             ]);
 
             // Obtener la oferta y la producción asociada
@@ -116,7 +116,7 @@ class OfertaDetalleController extends Controller
                 'cantidad_fisico' => 'sometimes|required|numeric|min:1',
                 'cantidad_comprometido' => 'nullable|numeric|min:0',
                 'precio' => 'sometimes|required|numeric|min:0',
-                'estado' => 'sometimes|string|max:255'
+                'estado' => 'sometimes|required|string|in:activo,inactivo'
             ], [
                 'id_oferta.required' => 'La oferta es obligatoria.',
                 'id_oferta.exists' => 'La oferta seleccionada no es válida.',
@@ -133,7 +133,7 @@ class OfertaDetalleController extends Controller
                 'precio.required' => 'El precio es obligatorio.',
                 'precio.numeric' => 'El precio debe ser un número.',
                 'precio.min' => 'El precio no puede ser negativo.',
-                'estado.max' => 'El estado no puede exceder 255 caracteres.'
+                'estado.in' => 'El campo estado solo puede tener los valores "activo" o "inactivo".'
             ]);
 
             $detalle->update($request->all());

@@ -31,7 +31,7 @@ class ConductorController extends Controller
                 'password' => 'required|string|min:8',
                 'ubicacion_latitud' => 'nullable|numeric',
                 'ubicacion_longitud' => 'nullable|numeric',
-                'estado' => 'required|string',
+                'estado' => 'sometimes|required|string|in:activo,inactivo',
                 'tokendevice' => 'nullable|string|unique:conductors,tokendevice'
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
@@ -48,7 +48,7 @@ class ConductorController extends Controller
                 'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
                 'ubicacion_latitud.numeric' => 'La latitud debe ser un número.',
                 'ubicacion_longitud.numeric' => 'La longitud debe ser un número.',
-                'estado.required' => 'El campo estado es obligatorio.',
+                'estado.in' => 'El campo solo puede tener los valores de activo, inactivo.',
                 'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 
@@ -94,7 +94,7 @@ class ConductorController extends Controller
                 'password' => 'sometimes|required|string|min:8',
                 'ubicacion_latitud' => 'nullable|numeric',
                 'ubicacion_longitud' => 'nullable|numeric',
-                'estado' => 'sometimes|required|string',
+                'estado' => 'sometimes|required|string|in:activo,inactivo',
                 'tokendevice' => 'nullable|string|unique:conductors,tokendevice,' . $id
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
@@ -111,7 +111,7 @@ class ConductorController extends Controller
                 'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
                 'ubicacion_latitud.numeric' => 'La latitud debe ser un número.',
                 'ubicacion_longitud.numeric' => 'La longitud debe ser un número.',
-                'estado.required' => 'El campo estado es obligatorio.',
+                'estado.in' => 'El campo solo puede tener los valores de activo e inactivo.',
                 'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
             ]);
 

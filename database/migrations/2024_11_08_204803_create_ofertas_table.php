@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('id_produccion')->constrained('produccions');
             $table->date('fecha_creacion');
             $table->date('fecha_expiracion');
-            $table->string('estado');
+            $table->string('estado')->default('activo');
             $table->timestamps();
         });
 

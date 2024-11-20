@@ -24,14 +24,14 @@ class PedidoController extends Controller
                 'fecha_entrega' => 'required|date',
                 'ubicacion_latitud' => 'required|numeric',
                 'ubicacion_longitud' => 'required|numeric',
-                'estado' => 'required|string|max:255',
+                'estado' => 'sometimes|required|string|in:pendiente,completo,incompleto',
             ], [
                 'id_cliente.required' => 'El campo id_cliente es obligatorio.',
                 'id_cliente.exists' => 'El cliente especificado no existe.',
                 'fecha_entrega.required' => 'El campo fecha de entrega es obligatorio.',
                 'ubicacion_latitud.required' => 'La latitud de ubicación es obligatoria.',
                 'ubicacion_longitud.required' => 'La longitud de ubicación es obligatoria.',
-                'estado.required' => 'El campo estado es obligatorio.'
+                'estado.in' => 'El campo estado solo puede ser pendiente, completo, incompleto.'
             ]);
 
             $pedido = Pedido::create($request->all());
@@ -66,13 +66,13 @@ class PedidoController extends Controller
                 'fecha_entrega' => 'sometimes|required|date',
                 'ubicacion_latitud' => 'sometimes|required|numeric',
                 'ubicacion_longitud' => 'sometimes|required|numeric',
-                'estado' => 'sometimes|required|string|max:255',
+                'estado' => 'sometimes|required|string|in:pendiente,completo,incompleto',
             ], [
                 'id_cliente.exists' => 'El cliente especificado no existe.',
                 'fecha_entrega.date' => 'La fecha de entrega debe ser una fecha válida.',
                 'ubicacion_latitud.numeric' => 'La latitud de ubicación debe ser un número.',
                 'ubicacion_longitud.numeric' => 'La longitud de ubicación debe ser un número.',
-                'estado.string' => 'El estado debe ser una cadena de texto.'
+                'estado.string' => 'El estado estado solo puede ser pendiente, completo, incompleto.'
             ]);
 
             $pedido->update($request->all());
