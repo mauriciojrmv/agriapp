@@ -48,62 +48,27 @@ class GenerarCargas extends Command
             $query->whereBetween('fecha_entrega', [$fechaInicio, $fechaFin])
                 ->where('estado_ofertado', 'pendiente');
         })->get();
-        //echo "Cantidad de Pedidos: " . $detallesPedidos->count(), PHP_EOL;
 
-        /*         // Preparar los datos para la tabla
-        $data = [];
-        foreach ($detallesPedidos as $detallePedido) {
-            $data[] = [
-                $detallePedido->id_pedido,
-                $detallePedido->cantidad,
-                $detallePedido->producto->nombre,
-            ];
-        }
-
-        // Crear la salida en consola
-        $output = new ConsoleOutput();
-        $table = new Table($output);
-
-        // Definir encabezados y filas
-        $table
-            ->setHeaders(['id_pedido', 'kg_cantidad', 'nombre_producto'])
-            ->setRows($data);
-
-        // Renderizar la tabla
-        $table->render(); */
 
 
         $detallesOfertas = Utils::getDetallesOfertas($fechaInicio, $fechaFin);
 
-        /*         $data = [];
-        foreach ($detallesOfertas as $detalleOferta) {
-            $data[] = [
-                $detalleOferta->id_oferta,
-                $detalleOferta->id_produccion,
-                $detalleOferta->produccion->descripcion,
-                $detalleOferta->precio,
-            ];
-        }
-
-        // Crear la salida en consola
-        $output = new ConsoleOutput();
-        $table = new Table($output);
-
-        // Definir encabezados y filas
-        $table
-            ->setHeaders(['id_oferta', 'id_produccion', 'descripcion_produccion', 'precio'])
-            ->setRows($data);
-
-        // Renderizar la tabla
-        $table->render(); */
-
-
         foreach ($detallesPedidos as $detallePedido) {
             $id_producto = $detallePedido->producto->id;
             $detallesOfertasFiltrados = Utils::getDetallesFiltrados($detallesOfertas, $id_producto);
+
+
+           
             if ($detallesOfertasFiltrados->count() == 1) {
 
                 foreach ($detallesOfertasFiltrados as $detalleOferta) {
+
+                    $deviceToken = $detalleOferta->produccion->terreno->agricultor->tokendevice;
+                    echo $deviceToken, PHP_EOL;
+                        
+                    if ($deviceToken) {
+                        //Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                    }
                     if ($detalleOferta->cantidad_fisico >= $detallePedido->cantidad  and $detalleOferta->cantidad_comprometido + $detallePedido->cantidad <= $detalleOferta->cantidad_fisico) {
 
                         CargaOferta::insert([[
@@ -127,6 +92,12 @@ class GenerarCargas extends Command
                 if ($detalleOfertasCumplenCantidad->count() >= 1) {
                     if ($detalleOfertasCumplenCantidad->count() == 1) {
                         foreach ($detalleOfertasCumplenCantidad as $detalleOferta) {
+                            $deviceToken = $detalleOferta->produccion->terreno->agricultor->tokendevice;
+                            echo $deviceToken, PHP_EOL;
+                                
+                            if ($deviceToken) {
+                                //Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                            }
                             CargaOferta::insert([[
                                 'id_oferta_detalle' => $detalleOferta->id,
                                 'pesokg' => $detallePedido->cantidad,
@@ -145,6 +116,12 @@ class GenerarCargas extends Command
                         //echo "Existe mas de 1 ofertaDetalle con el mismo porducto que cumplen con la cantidad requerida que son:" . $detalleOfertasCumplenCantidad->count(), PHP_EOL;
                         $detalleOfertaConMenorPxU = Utils::getDetalleOfertaMenorPxU($detalleOfertasCumplenCantidad);
                         //echo $detalleOfertaConMenorPxU->id , PHP_EOL;
+                        $deviceToken = $detalleOfertaConMenorPxU->produccion->terreno->agricultor->tokendevice;
+                        echo $deviceToken, PHP_EOL;
+                            
+                        if ($deviceToken) {
+                            //Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                        }
 
                         CargaOferta::insert([[
                             'id_oferta_detalle' => $detalleOfertaConMenorPxU->id,
@@ -156,21 +133,27 @@ class GenerarCargas extends Command
                         ]]);
                         $detallePedido->update(['cantidad_ofertada' => $detallePedido->cantidad, 'estado_ofertado' => 'ofertado', 'precio_ofertado' => $detallePedido->cantidad * $detalleOfertaConMenorPxU->preciounitario]);
                         $detalleOfertaConMenorPxU->update(['cantidad_comprometido' => $detalleOfertaConMenorPxU->cantidad_comprometido +  $detallePedido->cantidad]);
+
+
+                            
                     }
                 } else {
                     /**
                      * * VERIFICAR SI ENTRE TODOS LO DETALLES DE LAS OFERTAS PUEDEN SATISFACER EL PEDIDO
                      */
-                    //echo "Cantidad Requerida: " .  $detallePedido->cantidad, PHP_EOL;
-                    //echo $detallesOfertasFiltrados->count() . " Antes ", PHP_EOL;
+
 
                     $detallesOfertasSumadosCumplen =  Utils::getDetallesSatisfacenCantidad($detallesOfertasFiltrados, $detallePedido->cantidad);
-
-                    //echo $detallesOfertasSumadosCumplen->count() . " Despues ", PHP_EOL;
                     $cantidadAcumulada = 0;
                     $precio_a_ofertar = 0;
                     $sw = true;
                     foreach ($detallesOfertasSumadosCumplen as $detalleOferta) {
+                        $deviceToken = $detalleOferta->produccion->terreno->agricultor->tokendevice;
+                        echo $deviceToken, PHP_EOL;
+                            
+                        if ($deviceToken) {
+                            //Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                        }
                         $cantidadAcumulada += $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido;
                         if ($cantidadAcumulada < $detallePedido->cantidad and $sw) {
                             CargaOferta::insert([[
@@ -185,7 +168,13 @@ class GenerarCargas extends Command
                             $detalleOferta->update(['cantidad_comprometido' => $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido]);
                         } else {
                             if ($cantidadAcumulada == $detallePedido->cantidad) {
-
+                                
+                                $deviceToken = $detalleOferta->produccion->terreno->agricultor->tokendevice;
+                                echo $deviceToken, PHP_EOL;
+                                    
+                                if ($deviceToken) {
+                                    //Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                                }
                                 CargaOferta::insert([[
                                     'id_oferta_detalle' => $detalleOferta->id,
                                     'pesokg' => $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido,
@@ -213,17 +202,7 @@ class GenerarCargas extends Command
                                 $detalleOferta->update(['cantidad_comprometido' => $cantidadRestante]);
                             }
                         }
-                        /* $cantidadAcumulada += $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido;
-                        if ($cantidadAcumulada > $detallePedido->cantidad) {
-                            $precio_a_ofertar += (($detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido) - $cantidadAcumulada) * $detalleOferta->preciounitario;
 
-                            $a = ($detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido) - $cantidadAcumulada;
-                            $detalleOferta->update(['cantidad_comprometido' => $a]);
-                        } else {
-                            $precio_a_ofertar +=  ($detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido) * $detalleOferta->preciounitario;
-
-                            $detalleOferta->update(['cantidad_comprometido' => $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido]);
-                        } */
                     };
 
                     if ($cantidadAcumulada == $detallePedido->cantidad) {
@@ -259,18 +238,19 @@ class GenerarCargas extends Command
                 }
             }
         }
-        /*         $idProducto = 1; // Cambia este valor al ID del producto que quieres filtrar
 
-        // Filtrar los detalles de las ofertas por el id_producto
-        $detallesFiltrados = Utils::getDetallesFiltrados($detallesOfertas, $idProducto);
+    }
+}
 
+        //echo "Cantidad de Pedidos: " . $detallesPedidos->count(), PHP_EOL;
+
+        /*         // Preparar los datos para la tabla
         $data = [];
-        foreach ($detallesFiltrados as $detalleOferta) {
+        foreach ($detallesPedidos as $detallePedido) {
             $data[] = [
-                $detalleOferta->id_oferta,
-                $detalleOferta->id_produccion,
-                $detalleOferta->produccion->descripcion,
-                $detalleOferta->precio,
+                $detallePedido->id_pedido,
+                $detallePedido->cantidad,
+                $detallePedido->producto->nombre,
             ];
         }
 
@@ -280,28 +260,8 @@ class GenerarCargas extends Command
 
         // Definir encabezados y filas
         $table
-            ->setHeaders(['id_oferta', 'id_produccion', 'descripcion_produccion', 'precio'])
+            ->setHeaders(['id_pedido', 'kg_cantidad', 'nombre_producto'])
             ->setRows($data);
 
         // Renderizar la tabla
         $table->render(); */
-
-        /**
-         * * GENERAR CARGAS 
-         */
-
-        /*        if ($detallesFiltrados->count() == 1) {
-
-            foreach ($detallesFiltrados as $detalleOferta) {
-                CargaOferta::insert([[
-                    'id_oferta_detalle' => $detalleOferta->id,
-                    'pesokg' => 400,
-                    'precio' => 10,
-                    'estado' => 'activo',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]]);
-            }
-        } */
-    }
-}

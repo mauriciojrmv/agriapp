@@ -101,7 +101,8 @@ class GenerarRutas extends Command
 
                 $rutaOferta->save();
                 //$deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
-                $deviceToken = $transporte->tokendevice;
+                $deviceToken = $transporte->conductor->tokendevice;
+                
                 if ($deviceToken) {
                     Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
                 }
@@ -135,7 +136,8 @@ class GenerarRutas extends Command
 
                 $rutaOferta->save();
                 //$deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
-                $deviceToken = $transporte->tokendevice;
+                $deviceToken = $transporte->conductor->tokendevice;
+                
                 if ($deviceToken) {
                     Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
                 }
@@ -174,7 +176,8 @@ class GenerarRutas extends Command
 
 
                     // $deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
-                    $deviceToken = $transporte->tokendevice;
+                    $deviceToken = $transporte->conductor->tokendevice;
+                    
                     if ($deviceToken) {
                         Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
                     }
