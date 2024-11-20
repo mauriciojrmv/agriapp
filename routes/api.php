@@ -30,8 +30,14 @@ Route::prefix('v1')->group(function () {
     Route::get('conductores/{id}/transportes', [ConductorController::class, 'getTransportes'])->name('conductores.transportesList');
 
     Route::apiResource('agricultors', AgricultorController::class);
-    Route::get('agricultors/{id}/terrenos', [AgricultorController::class, 'getTerrenos'])->name('agricultors.terrenosList');
-    Route::get('agricultors/{id}/producciones', [AgricultorController::class, 'getProducciones'])->name('agricultors.produccionesList');
+    Route::get('agricultors/{id}/terrenos', [AgricultorController::class, 'getTerrenosByAgricultorId'])->name('agricultors.terrenosByAgricultor');
+    Route::get('agricultors/{id}/producciones', [AgricultorController::class, 'getProduccionesByAgricultorId'])->name('agricultors.produccionesList');
+    Route::get('agricultors/{id}/ofertas', [AgricultorController::class, 'getOfertasByAgricultorId'])
+    ->name('agricultors.ofertas');
+    Route::get('agricultors/{id}/oferta_detalles', [AgricultorController::class, 'getOfertaDetallesByAgricultorId'])
+    ->name('agricultors.ofertaDetalles');
+    Route::get('agricultors/{id}/oferta_cargas', [AgricultorController::class, 'getOfertaCargasByAgricultorId'])
+    ->name('agricultors.ofertaCargas');
 
     Route::apiResource('clientes', ClienteController::class);
     Route::get('clientes/{id}/pedidos', [ClienteController::class, 'getPedidos'])->name('clientes.pedidosList');

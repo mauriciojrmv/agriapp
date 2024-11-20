@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Agricultor;
 use App\Models\Produccion;
+use App\Models\Oferta;
+use App\Models\OfertaDetalle;
+use App\Models\CargaOferta;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
@@ -133,21 +136,116 @@ class AgricultorController extends Controller
     }
 
     // Obtener las producciones de un agricultor específico
-    public function getProducciones($id)
-    {
-        try {
-            $agricultor = Agricultor::findOrFail($id);
-            $producciones = Produccion::whereHas('terreno', function ($query) use ($id) {
-                $query->where('id_agricultor', $id);
-            })->get();
+    public function getProduccionesByAgricultorId($id)
+{
+    try {
+        // Encuentra al agricultor por su ID
+        $agricultor = Agricultor::findOrFail($id);
 
-            if ($producciones->isEmpty()) {
-                return response()->json(['message' => 'No se encontraron producciones para este agricultor'], 404);
-            }
+        // Obtén las producciones relacionadas con sus terrenos
+        $producciones = Produccion::whereHas('terreno', function ($query) use ($id) {
+            $query->where('id_agricultor', $id);
+        })->with(['producto', 'unidadMedida', 'terreno'])->get();
 
-            return response()->json($producciones, 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Agricultor no encontrado'], 404);
+        if ($producciones->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron producciones para este agricultor'], 404);
         }
+
+        return response()->json($producciones, 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Agricultor no encontrado'], 404);
     }
+}
+
+// Obtener las ofertas relacionadas con un agricultor
+public function getOfertasByAgricultorId($id)
+{
+    try {
+        // Verificar si el agricultor existe
+        $agricultor = Agricultor::findOrFail($id);
+
+        // Obtener las ofertas relacionadas a las producciones de los terrenos del agricultor
+        $ofertas = Oferta::whereHas('produccion.terreno', function ($query) use ($id) {
+            $query->where('id_agricultor', $id);
+        })->with(['produccion.producto', 'detalles'])->get();
+
+        // Verificar si no se encontraron ofertas
+        if ($ofertas->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron ofertas para este agricultor'], 404);
+        }
+
+        // Retornar las ofertas
+        return response()->json($ofertas, 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Agricultor no encontrado'], 404);
+    }
+}
+
+public function getOfertaDetallesByAgricultorId($id)
+{
+    try {
+        // Verificar si el agricultor existe
+        $agricultor = Agricultor::findOrFail($id);
+
+        // Obtener los detalles de ofertas relacionados con las producciones de los terrenos del agricultor
+        $ofertaDetalles = OfertaDetalle::whereHas('produccion.terreno', function ($query) use ($id) {
+            $query->where('id_agricultor', $id);
+        })->with(['produccion.producto', 'moneda', 'unidadMedida', 'oferta'])->get();
+
+        // Verificar si no se encontraron detalles de oferta
+        if ($ofertaDetalles->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron detalles de oferta para este agricultor'], 404);
+        }
+
+        // Retornar los detalles de oferta
+        return response()->json($ofertaDetalles, 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Agricultor no encontrado'], 404);
+    }
+}
+
+public function getOfertaCargasByAgricultorId($id)
+{
+    try {
+        // Verificar si el agricultor existe
+        $agricultor = Agricultor::findOrFail($id);
+
+        // Obtener las cargas de ofertas relacionadas con las producciones de los terrenos del agricultor
+        $cargaOfertas = CargaOferta::whereHas('ofertaDetalle.produccion.terreno', function ($query) use ($id) {
+            $query->where('id_agricultor', $id);
+        })->with(['ofertaDetalle.produccion', 'ofertaDetalle.unidadMedida', 'ofertaDetalle.moneda'])->get();
+
+        // Verificar si no se encontraron cargas de ofertas
+        if ($cargaOfertas->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron cargas de oferta para este agricultor'], 404);
+        }
+
+        // Retornar las cargas de ofertas
+        return response()->json($cargaOfertas, 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Agricultor no encontrado'], 404);
+    }
+}
+
+
+    public function getTerrenosByAgricultorId($id)
+{
+    try {
+        // Verificar si el agricultor existe
+        $agricultor = Agricultor::findOrFail($id);
+
+        // Obtener los terrenos asociados al agricultor
+        $terrenos = $agricultor->terrenos;
+
+        // Verificar si no tiene terrenos
+        if ($terrenos->isEmpty()) {
+            return response()->json(['message' => 'Este agricultor no tiene terrenos registrados'], 404);
+        }
+
+        // Retornar los terrenos asociados
+        return response()->json($terrenos, 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Agricultor no encontrado'], 404);
+    }
+}
 }
