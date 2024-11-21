@@ -74,7 +74,7 @@ class Utils
         });
     }
 
-    public static function h($lat1, $lon1, $lat2, $lon2)
+    public static function haversine($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371; // Radio de la Tierra en kilómetros
 
@@ -91,10 +91,13 @@ class Utils
     }
 
 
-    public static function findClosestCarga($cargas, $latPos, $lonPos)
+    public static function buscarCargaCercana($cargas, $radio, $latPos, $lonPos)
     {
         $closestCarga = null;
         $shortestDistance = PHP_INT_MAX; // Inicializar con un valor alto
+        if ($cargas->isEmpty()) {
+            return null; // No hay cargas para buscar
+        }
 
         foreach ($cargas as $carga) {
             // Extraer latitud y longitud de la carga desde las relaciones
@@ -102,16 +105,32 @@ class Utils
             $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
 
             // Calcular la distancia usando la fórmula de Haversine
-            $distance = self::h($latPos, $lonPos, $latCarga, $lonCarga);
+            $distance = self::haversine($latPos, $lonPos, $latCarga, $lonCarga);
 
             // Comparar si es la distancia más corta
-            if ($distance < $shortestDistance) {
+            if ($distance <= $radio) {
                 $shortestDistance = $distance;
                 $closestCarga = $carga; // Guardar solo la carga más cercana
             }
         }
 
         return $closestCarga; // Devolver la carga más cercana
+    }
+
+    public static function getCargasRuta($cargas, $radio, $lat_inicial, $lon_inicial): Collection
+    {
+
+        return $cargas->filter(function ($carga) use ($radio, $lat_inicial, $lon_inicial) {
+            $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
+            $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+            $distance = self::haversine($lat_inicial, $lon_inicial, $latCarga, $lonCarga);
+            // echo "Posicion de la carga: " . $latCarga . " " . $lonCarga, PHP_EOL;
+
+            if ($distance <= $radio) {
+
+                return $carga;
+            }
+        });
     }
 
     public static function getCargasMismaIdOfertaDetalle(Collection $cargas, int $idOfertaDetalle): Collection
@@ -133,7 +152,7 @@ class Utils
                 $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
 
                 // Calcular la distancia usando la fórmula de Haversine
-                $distance = self::h($latPos, $lonPos, $latCarga, $lonCarga);
+                $distance = self::haversine($latPos, $lonPos, $latCarga, $lonCarga);
 
                 // Comparar si es la distancia más corta
                 if ($distance < $shortestDistance) {
@@ -244,7 +263,7 @@ class Utils
         }
 
 
-        $url = 'https://fcm.googleapis.com/v1/projects/'.$proyectId.'/messages:send';
+        $url = 'https://fcm.googleapis.com/v1/projects/' . $proyectId . '/messages:send';
 
         // Estructura del mensaje
         $payload = [

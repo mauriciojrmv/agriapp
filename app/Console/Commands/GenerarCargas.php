@@ -68,7 +68,7 @@ class GenerarCargas extends Command
                             'id_oferta_detalle' => $detalleOferta->id,
                             'pesokg' => $detallePedido->cantidad,
                             'precio' =>  $detallePedido->cantidad * $detalleOferta->preciounitario,
-                            'estado' => 'activo',
+                            'estado' => 'pendiente',
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
@@ -101,7 +101,7 @@ class GenerarCargas extends Command
                                 'id_oferta_detalle' => $detalleOferta->id,
                                 'pesokg' => $detallePedido->cantidad,
                                 'precio' =>  $detallePedido->cantidad * $detalleOferta->preciounitario,
-                                'estado' => 'activo',
+                                'estado' => 'pendiente',
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
@@ -132,7 +132,7 @@ class GenerarCargas extends Command
                             'id_oferta_detalle' => $detalleOfertaConMenorPxU->id,
                             'pesokg' => $detallePedido->cantidad,
                             'precio' =>  $detallePedido->cantidad * $detalleOfertaConMenorPxU->preciounitario,
-                            'estado' => 'activo',
+                            'estado' => 'pendiente',
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
@@ -169,7 +169,7 @@ class GenerarCargas extends Command
                                 'id_oferta_detalle' => $detalleOferta->id,
                                 'pesokg' => $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido,
                                 'precio' =>  $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido  * $detalleOferta->preciounitario,
-                                'estado' => 'activo',
+                                'estado' => 'pendiente',
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
@@ -192,7 +192,7 @@ class GenerarCargas extends Command
                                     'id_oferta_detalle' => $detalleOferta->id,
                                     'pesokg' => $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido,
                                     'precio' =>  $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido  * $detalleOferta->preciounitario,
-                                    'estado' => 'activo',
+                                    'estado' => 'pendiente',
                                     'created_at' => now(),
                                     'updated_at' => now(),
                                 ]);
@@ -217,7 +217,7 @@ class GenerarCargas extends Command
                                     'id_oferta_detalle' => $detalleOferta->id,
                                     'pesokg' => $cantidadRestante,
                                     'precio' =>  $cantidadRestante  * $detalleOferta->preciounitario,
-                                    'estado' => 'activo',
+                                    'estado' => 'pendiente',
                                     'created_at' => now(),
                                     'updated_at' => now(),
                                 ]);
