@@ -76,7 +76,7 @@ class GenerarCargas extends Command
 
                         if ($deviceToken) {
                             $data = [
-                                "screen" => "OfertaScreen",
+                                "screen" => "CargaOfertaScreen",
                                 "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
                                 "cargaOfertaId" => $carga->id
                             ];
@@ -109,7 +109,7 @@ class GenerarCargas extends Command
 
                             if ($deviceToken) {
                                 $data = [
-                                    "screen" => "OfertaScreen",
+                                    "screen" => "CargaOfertaScreen",
                                     "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
                                     "cargaOfertaId" => $carga->id
                                 ];
@@ -140,7 +140,7 @@ class GenerarCargas extends Command
 
                         if ($deviceToken) {
                             $data = [
-                                "screen" => "OfertaScreen",
+                                "screen" => "CargaOfertaScreen",
                                 "agricultorId" => $detalleOfertaConMenorPxU->produccion->terreno->agricultor->id,
                                 "cargaOfertaId" => $carga->id
                             ];
@@ -177,7 +177,7 @@ class GenerarCargas extends Command
 
                             if ($deviceToken) {
                                 $data = [
-                                    "screen" => "OfertaScreen",
+                                    "screen" => "CargaOfertaScreen",
                                     "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
                                     "cargaOfertaId" => $carga->id
                                 ];
@@ -200,7 +200,7 @@ class GenerarCargas extends Command
 
                                 if ($deviceToken) {
                                     $data = [
-                                        "screen" => "OfertaScreen",
+                                        "screen" => "CargaOfertaScreen",
                                         "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
                                         "cargaOfertaId" => $carga->id
                                     ];
@@ -225,7 +225,7 @@ class GenerarCargas extends Command
 
                                 if ($deviceToken) {
                                     $data = [
-                                        "screen" => "OfertaScreen",
+                                        "screen" => "CargaOfertaScreen",
                                         "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
                                         "cargaOfertaId" => $carga->id
                                     ];
