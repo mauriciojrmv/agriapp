@@ -11,6 +11,7 @@ class CargaOferta extends Model
 
     protected $fillable = ['id_oferta_detalle', 'pesokg', 'precio', 'estado'];
 
+
     public function ofertaDetalle()
     {
         return $this->belongsTo(OfertaDetalle::class, 'id_oferta_detalle');

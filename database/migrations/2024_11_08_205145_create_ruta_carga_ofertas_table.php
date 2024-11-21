@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('id_ruta_oferta')->constrained('ruta_ofertas');
             $table->foreignId('id_transporte')->constrained('transportes');
             $table->integer('orden');
-            $table->string('estado');
+            $table->string('estado')->default('pendiente');
             $table->decimal('distancia', 10, 2);
             $table->timestamps();
         });

@@ -9,7 +9,16 @@ class RutaCargaOferta extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_carga_oferta', 'id_ruta_oferta', 'id_transporte', 'orden', 'estado', 'distancia'];
+    protected $fillable = [
+        'id_carga_oferta',
+        'id_ruta_oferta',
+        'id_transporte',
+        'orden',
+        'estado',
+        'estado_conductor',
+        'distancia'
+    ];
+
 
     public function cargaOferta()
     {
@@ -25,4 +34,9 @@ class RutaCargaOferta extends Model
     {
         return $this->belongsTo(Transporte::class, 'id_transporte');
     }
+
+    public function conductor()
+{
+    return $this->hasOneThrough(Conductor::class, Transporte::class, 'id_conductor', 'id', 'id_transporte', 'id');
+}
 }

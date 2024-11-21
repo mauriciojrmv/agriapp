@@ -28,16 +28,21 @@ Route::prefix('v1')->group(function () {
     // Rutas para entidades principales
     Route::apiResource('conductores', ConductorController::class);
     Route::get('conductores/{id}/transportes', [ConductorController::class, 'getTransportes'])->name('conductores.transportesList');
+    Route::get('conductores/{id}/puntos-ofertas', [ConductorController::class, 'getPuntosOfertas'])->name('conductores.puntosOfertas');
+    Route::get('conductores/{id}/rutas-carga-ofertas', [ConductorController::class, 'getRutasCargaOfertas'])->name('conductores.rutasCargaOfertas');
+    Route::get('conductores/{id}/orden-ofertas', [ConductorController::class, 'getOrdenOfertas'])->name('conductores.ordenOfertas');
+    Route::get('carga_ofertas/{idCargaOferta}/detalle', [ConductorController::class, 'getDetalleOfertaCarga'])->name('cargaOfertas.detalle');
+    Route::get('conductores/{id}/fechas-recogida', [ConductorController::class, 'getFechaRecogida'])->name('conductores.fechasRecogida');
+    Route::get('conductores/{id}/carga_ofertas/{idCargaOferta}/detalle', [ConductorController::class, 'getDetalleOfertaCarga'])
+    ->name('conductores.cargaOfertas.detalle');
+
 
     Route::apiResource('agricultors', AgricultorController::class);
     Route::get('agricultors/{id}/terrenos', [AgricultorController::class, 'getTerrenosByAgricultorId'])->name('agricultors.terrenosByAgricultor');
     Route::get('agricultors/{id}/producciones', [AgricultorController::class, 'getProduccionesByAgricultorId'])->name('agricultors.produccionesList');
-    Route::get('agricultors/{id}/ofertas', [AgricultorController::class, 'getOfertasByAgricultorId'])
-    ->name('agricultors.ofertas');
-    Route::get('agricultors/{id}/oferta_detalles', [AgricultorController::class, 'getOfertaDetallesByAgricultorId'])
-    ->name('agricultors.ofertaDetalles');
-    Route::get('agricultors/{id}/oferta_cargas', [AgricultorController::class, 'getOfertaCargasByAgricultorId'])
-    ->name('agricultors.ofertaCargas');
+    Route::get('agricultors/{id}/ofertas', [AgricultorController::class, 'getOfertasByAgricultorId'])->name('agricultors.ofertas');
+    Route::get('agricultors/{id}/oferta_detalles', [AgricultorController::class, 'getOfertaDetallesByAgricultorId'])->name('agricultors.ofertaDetalles');
+    Route::get('agricultors/{id}/oferta_cargas', [AgricultorController::class, 'getOfertaCargasByAgricultorId'])->name('agricultors.ofertaCargas');
 
     Route::apiResource('clientes', ClienteController::class);
     Route::get('clientes/{id}/pedidos', [ClienteController::class, 'getPedidos'])->name('clientes.pedidosList');
@@ -66,50 +71,30 @@ Route::prefix('v1')->group(function () {
     Route::get('pedidos/{id}/detalles', [PedidoController::class, 'getDetalles'])->name('pedidos.detallesList');
     Route::get('pedidos/estado/{estado}', [PedidoController::class, 'getPedidosByEstado'])->name('pedidos.estadoList');
     Route::put('pedidos/estado/batch', [PedidoController::class, 'updateEstadoBatch'])->name('pedidos.estado.batch');
-    Route::get('clientes/{clienteId}/pedidos', [PedidoController::class, 'getPedidosByCliente'])->name('clientes.pedidosByCliente');
-    Route::get('pedidos/fecha', [PedidoController::class, 'getPedidosByFecha'])->name('pedidos.fechaList');
 
     Route::apiResource('pedido_detalles', PedidoDetalleController::class);
     Route::get('pedido_detalles/{id}/cargas', [PedidoDetalleController::class, 'getCargas'])->name('pedido_detalles.cargasList');
-    Route::get('pedidos/{pedidoId}/detalles', [PedidoDetalleController::class, 'getDetallesByPedido'])->name('pedidos.detallesByPedido');
-    Route::get('productos/{productoId}/detalles', [PedidoDetalleController::class, 'getDetallesByProducto'])->name('productos.detallesByProducto');
-    Route::put('pedido_detalles/cantidad/batch', [PedidoDetalleController::class, 'updateCantidadBatch'])->name('pedido_detalles.cantidad.batch');
-    Route::get('pedido_detalles/resumen/productos', [PedidoDetalleController::class, 'getResumenProductos'])->name('pedido_detalles.resumenProductos');
-    Route::get('pedido_detalles/{id}/disponibilidad', [PedidoDetalleController::class, 'checkAvailability'])->name('pedido_detalles.disponibilidadCheck');
 
-    // Rutas para producciones ofertas y detalles de ofertas
+    // Rutas para producciones, ofertas y detalles de ofertas
     Route::apiResource('producciones', ProduccionController::class);
-    Route::get('producciones/activas', [ProduccionController::class, 'getProduccionesActivas'])->name('producciones.activasList');
-    Route::get('terrenos/{terrenoId}/producciones', [ProduccionController::class, 'getProduccionesByTerreno'])->name('terrenos.produccionesByTerreno');
-    Route::get('temporadas/{temporadaId}/producciones', [ProduccionController::class, 'getProduccionesByTemporada'])->name('temporadas.produccionesByTemporada');
-    Route::get('productos/{productoId}/producciones', [ProduccionController::class, 'getProduccionesByProducto'])->name('productos.produccionesByProducto');
-
     Route::apiResource('ofertas', OfertaController::class);
-    Route::get('ofertas/{id}/detalles', [OfertaController::class, 'getDetalles'])->name('ofertas.detallesList');
-    Route::get('ofertas/activas', [OfertaController::class, 'getOfertasActivas'])->name('ofertas.activasList');
-    Route::get('produccions/{produccionId}/ofertas', [OfertaController::class, 'getOfertasByProduccion'])->name('produccions.ofertasList');
-    Route::put('ofertas/{id}/extender', [OfertaController::class, 'extendExpiracion'])->name('ofertas.extenderExpiracion');
-
     Route::apiResource('oferta_detalles', OfertaDetalleController::class);
-    Route::get('oferta_detalles/{id}/cargas', [OfertaDetalleController::class, 'getCargas'])->name('oferta_detalles.cargasList');
-    Route::get('oferta_detalles/{id}/disponibilidad', [OfertaDetalleController::class, 'checkDisponibilidad'])->name('oferta_detalles.disponibilidadCheck');
-    Route::get('monedas/{monedaId}/oferta_detalles', [OfertaDetalleController::class, 'getDetallesByMoneda'])->name('monedas.ofertaDetallesList');
-    Route::get('unidad_medidas/{unidadMedidaId}/oferta_detalles', [OfertaDetalleController::class, 'getDetallesByUnidadMedida'])->name('unidad_medidas.ofertaDetallesList');
 
     // Rutas para cargas y rutas de ofertas
     Route::apiResource('carga_ofertas', CargaOfertaController::class);
-    Route::get('carga_ofertas/detalle/{ofertaDetalleId}', [CargaOfertaController::class, 'getCargasByDetalle'])->name('carga_ofertas.detalleList');
-    Route::get('carga_ofertas/estado/{estado}', [CargaOfertaController::class, 'getCargasByEstado'])->name('carga_ofertas.estadoList');
-
     Route::apiResource('ruta_ofertas', RutaOfertaController::class);
-    Route::get('ruta_ofertas/{id}/cargas', [RutaOfertaController::class, 'getCargas'])->name('ruta_ofertas.cargasList');
-
     Route::apiResource('ruta_carga_ofertas', RutaCargaOfertaController::class);
 
-    // Rutas para cargas y rutas de pedidos
-    Route::apiResource('carga_pedidos', CargaPedidoController::class);
-    Route::apiResource('ruta_pedidos', RutaPedidoController::class);
-    Route::apiResource('ruta_carga_pedidos', RutaCargaPedidoController::class);
+    // Rutas personalizadas para RutaCargaOferta
+    Route::put('ruta_carga_ofertas/{id}/estado-conductor', [RutaCargaOfertaController::class, 'updateEstadoConductor'])
+        ->name('ruta_carga_ofertas.updateEstadoConductor'); // Actualizar estado del conductor
+    Route::put('ruta_carga_ofertas/{id}/confirmar-recogida', [RutaCargaOfertaController::class, 'confirmarRecogida'])
+        ->name('ruta_carga_ofertas.confirmarRecogida'); // Confirmar recogida de carga
+
+// Rutas para cargas y rutas de pedidos
+Route::apiResource('carga_pedidos', CargaPedidoController::class);
+Route::apiResource('ruta_pedidos', RutaPedidoController::class);
+Route::apiResource('ruta_carga_pedidos', RutaCargaPedidoController::class);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
