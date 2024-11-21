@@ -250,7 +250,7 @@ class Utils
     }
 
 
-    public  static function  sendFcmNotificationWithLocations($deviceToken, $title, $body, $locations, $tipo)
+    public  static function  sendFcmNotificationWithLocations($deviceToken, $title, $body, $data, $tipo)
     {
         $bearerToken = "";
         $proyectId = "";
@@ -273,9 +273,7 @@ class Utils
                     'title' => $title,
                     'body' => $body,
                 ],
-                'data' => [
-                    'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
-                ],
+                'data' => $data
             ],
         ];
 

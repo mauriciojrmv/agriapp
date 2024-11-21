@@ -77,9 +77,7 @@ class GenerarCargas extends Command
                         if ($deviceToken) {
                             $data = [
                                 "screen" => "CargaOfertaScreen",
-                                "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
-                                "cargaOfertaId" => $carga->id
-                            ];
+                             ];
                             $productoNombre = $detalleOferta->produccion->nombre;
                             Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                         }
@@ -110,9 +108,7 @@ class GenerarCargas extends Command
                             if ($deviceToken) {
                                 $data = [
                                     "screen" => "CargaOfertaScreen",
-                                    "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
-                                    "cargaOfertaId" => $carga->id
-                                ];
+                                 ];
                                 $productoNombre = $detalleOferta->produccion->producto->nombre;
                                 Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                             }
@@ -141,9 +137,7 @@ class GenerarCargas extends Command
                         if ($deviceToken) {
                             $data = [
                                 "screen" => "CargaOfertaScreen",
-                                "agricultorId" => $detalleOfertaConMenorPxU->produccion->terreno->agricultor->id,
-                                "cargaOfertaId" => $carga->id
-                            ];
+                             ];
 
                             $productoNombre = $detalleOfertaConMenorPxU->produccion->producto->nombre;
                             Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
@@ -178,9 +172,7 @@ class GenerarCargas extends Command
                             if ($deviceToken) {
                                 $data = [
                                     "screen" => "CargaOfertaScreen",
-                                    "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
-                                    "cargaOfertaId" => $carga->id
-                                ];
+                                 ];
                                 $productoNombre = $detalleOferta->produccion->producto->nombre;
                                 Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                             }
@@ -201,9 +193,7 @@ class GenerarCargas extends Command
                                 if ($deviceToken) {
                                     $data = [
                                         "screen" => "CargaOfertaScreen",
-                                        "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
-                                        "cargaOfertaId" => $carga->id
-                                    ];
+                                     ];
                                     $productoNombre = $detalleOferta->produccion->producto->nombre;
                                     Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                                 }
@@ -226,9 +216,7 @@ class GenerarCargas extends Command
                                 if ($deviceToken) {
                                     $data = [
                                         "screen" => "CargaOfertaScreen",
-                                        "agricultorId" => $detalleOferta->produccion->terreno->agricultor->id,
-                                        "cargaOfertaId" => $carga->id
-                                    ];
+                                     ];
                                     $productoNombre = $detalleOferta->produccion->producto->nombre;
                                     Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                                 }

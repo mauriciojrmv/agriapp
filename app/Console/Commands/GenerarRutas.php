@@ -113,7 +113,10 @@ class GenerarRutas extends Command
                     $deviceToken = $transporte->conductor->tokendevice;
                     $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
                     if ($deviceToken) {
-                        Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations, 2);
+                        $data = [
+                            'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
+                        ];
+                        Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
                     }
                 } elseif ($cargasQueCumplen->count() == 1) {
                     //echo "Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
@@ -148,7 +151,10 @@ class GenerarRutas extends Command
                     $deviceToken = $transporte->conductor->tokendevice;
                     $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
                     if ($deviceToken) {
-                        Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations, 2);
+                        $data = [
+                            'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
+                        ];
+                        Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
                     }
                 } elseif ($cargasQueCumplen->count() == 0) {
                     //echo "No Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
@@ -189,7 +195,10 @@ class GenerarRutas extends Command
                         $deviceToken = $transporte->conductor->tokendevice;
                         $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
                         if ($deviceToken) {
-                            Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations, 2);
+                            $data = [
+                                'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
+                            ];
+                            Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
                         }
                     } else {
                         $peso70 = $pesoMax - ($pesoMax * 40 / 100);
