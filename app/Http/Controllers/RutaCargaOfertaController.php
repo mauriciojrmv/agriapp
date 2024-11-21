@@ -249,8 +249,8 @@ public function getPuntosRuta($idRutaOferta)
 
         // Agregar el punto de acopio
         $puntos->push([
-            'lat' => env('PUNTO_ACOPIO_LAT'),
-            'lon' => env('PUNTO_ACOPIO_LON'),
+            'lat' => -17.750000, // Latitud del punto de acopio
+            'lon' => -63.100000, // Longitud del punto de acopio
             'tipo' => 'punto_acopio',
         ]);
 
