@@ -104,7 +104,7 @@ class GenerarRutas extends Command
                 $deviceToken = $transporte->conductor->tokendevice;
                 
                 if ($deviceToken) {
-                    Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                    Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations,2);
                 }
             } elseif ($cargasQueCumplen->count() == 1) {
                 //echo "Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
@@ -139,7 +139,7 @@ class GenerarRutas extends Command
                 $deviceToken = $transporte->conductor->tokendevice;
                 
                 if ($deviceToken) {
-                    Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                    Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations,2);
                 }
             } elseif ($cargasQueCumplen->count() == 0) {
                 //echo "No Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
@@ -179,7 +179,7 @@ class GenerarRutas extends Command
                     $deviceToken = $transporte->conductor->tokendevice;
                     
                     if ($deviceToken) {
-                        Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations);
+                        Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $locations,2);
                     }
                 } else {
                     $peso70 = $pesoMax - ($pesoMax * 40 / 100);

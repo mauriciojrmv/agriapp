@@ -81,7 +81,7 @@ class GenerarCargas extends Command
                                 "cargaOfertaId" => $carga->id
                             ];
                             $productoNombre = $detalleOferta->produccion->nombre;
-                            Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de ". $productoNombre, "Haz click para ver" , $data);
+                            Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                         }
                         $detallePedido->update(['cantidad_ofertada' => $detallePedido->cantidad, 'estado_ofertado' => 'ofertado', 'precio_ofertado' => $detallePedido->cantidad * $detalleOferta->preciounitario]);
                         $detalleOferta->update(['cantidad_comprometido' => $detalleOferta->cantidad_comprometido +  $detallePedido->cantidad]);
@@ -114,7 +114,7 @@ class GenerarCargas extends Command
                                     "cargaOfertaId" => $carga->id
                                 ];
                                 $productoNombre = $detalleOferta->produccion->producto->nombre;
-                                Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de ". $productoNombre, "Haz click para ver" , $data);
+                                Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                             }
                             $detallePedido->update(['cantidad_ofertada' => $detallePedido->cantidad, 'estado_ofertado' => 'ofertado', 'precio_ofertado' => $detallePedido->cantidad * $detalleOferta->preciounitario]);
                             $detalleOferta->update(['cantidad_comprometido' => $detalleOferta->cantidad_comprometido +  $detallePedido->cantidad]);
@@ -144,9 +144,9 @@ class GenerarCargas extends Command
                                 "agricultorId" => $detalleOfertaConMenorPxU->produccion->terreno->agricultor->id,
                                 "cargaOfertaId" => $carga->id
                             ];
-        
+
                             $productoNombre = $detalleOfertaConMenorPxU->produccion->producto->nombre;
-                            Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de ". $productoNombre, "Haz click para ver" , $data);
+                            Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                         }
                         $detallePedido->update(['cantidad_ofertada' => $detallePedido->cantidad, 'estado_ofertado' => 'ofertado', 'precio_ofertado' => $detallePedido->cantidad * $detalleOfertaConMenorPxU->preciounitario]);
                         $detalleOfertaConMenorPxU->update(['cantidad_comprometido' => $detalleOfertaConMenorPxU->cantidad_comprometido +  $detallePedido->cantidad]);
@@ -182,7 +182,7 @@ class GenerarCargas extends Command
                                     "cargaOfertaId" => $carga->id
                                 ];
                                 $productoNombre = $detalleOferta->produccion->producto->nombre;
-                                Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de ". $productoNombre, "Haz click para ver" , $data);
+                                Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                             }
                             $precio_a_ofertar += ($detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido)  * $detalleOferta->preciounitario;
                             $detalleOferta->update(['cantidad_comprometido' => $detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido]);
@@ -205,7 +205,7 @@ class GenerarCargas extends Command
                                         "cargaOfertaId" => $carga->id
                                     ];
                                     $productoNombre = $detalleOferta->produccion->producto->nombre;
-                                    Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de ". $productoNombre, "Haz click para ver" , $data);
+                                    Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                                 }
                                 $precio_a_ofertar += ($detalleOferta->cantidad_fisico - $detalleOferta->cantidad_comprometido)  * $detalleOferta->preciounitario;
                                 $sw = false;
@@ -230,7 +230,7 @@ class GenerarCargas extends Command
                                         "cargaOfertaId" => $carga->id
                                     ];
                                     $productoNombre = $detalleOferta->produccion->producto->nombre;
-                                    Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de ". $productoNombre, "Haz click para ver" , $data);
+                                    Utils::sendFcmNotificationWithLocations($deviceToken, "Se realizo una Reserva de " . $productoNombre, "Haz click para ver", $data, 1);
                                 }
                                 $sw = false;
                                 $precio_a_ofertar += $cantidadRestante  * $detalleOferta->preciounitario;

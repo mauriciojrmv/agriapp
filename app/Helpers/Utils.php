@@ -192,9 +192,14 @@ class Utils
     }
 
 
-    public static function getBearerToken()
+    public static function getBearerToken($tipo)
     {
-        $serviceAccountPath = storage_path('app/firebase/conductor-app-daf91-firebase-adminsdk-zzy1x-d6842a53e6.json');
+        $serviceAccountPath = "";
+        if ($tipo == 1) {
+            $serviceAccountPath = storage_path('app/firebase/productor.json');
+        } else {
+            $serviceAccountPath = storage_path('app/firebase/conductor.json');
+        }
         // Leer el archivo JSON
         $serviceAccount = json_decode(file_get_contents($serviceAccountPath), true);
 
@@ -226,11 +231,20 @@ class Utils
     }
 
 
-    public  static function  sendFcmNotificationWithLocations($deviceToken, $title, $body, $locations)
+    public  static function  sendFcmNotificationWithLocations($deviceToken, $title, $body, $locations, $tipo)
     {
-        $bearerToken = self::getBearerToken(); // Genera el token dinámicamente
+        $bearerToken = "";
+        $proyectId = "";
+        if ($tipo == 1) {
+            $bearerToken = self::getBearerToken(1); // Genera el token dinámicamente
+            $proyectId = "app-agricultor-c216e";
+        } else {
+            $bearerToken = self::getBearerToken(2); // Genera el token dinámicamente
+            $proyectId = "conductor-app-daf91";
+        }
 
-        $url = 'https://fcm.googleapis.com/v1/projects/conductor-app-daf91/messages:send';
+
+        $url = 'https://fcm.googleapis.com/v1/projects/'.$proyectId.'/messages:send';
 
         // Estructura del mensaje
         $payload = [
