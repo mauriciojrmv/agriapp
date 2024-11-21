@@ -90,6 +90,10 @@ Route::prefix('v1')->group(function () {
         ->name('ruta_carga_ofertas.updateEstadoConductor'); // Actualizar estado del conductor
     Route::put('ruta_carga_ofertas/{id}/confirmar-recogida', [RutaCargaOfertaController::class, 'confirmarRecogida'])
         ->name('ruta_carga_ofertas.confirmarRecogida'); // Confirmar recogida de carga
+    Route::put('ruta_carga_ofertas/{id}/aceptar', [RutaCargaOfertaController::class, 'aceptarRuta'])
+    ->name('ruta_carga_ofertas.aceptarRuta');
+    Route::get('ruta_ofertas/{id}/puntos-ruta', [RutaCargaOfertaController::class, 'getPuntosRuta'])
+    ->name('ruta_ofertas.puntosRuta');
 
 // Rutas para cargas y rutas de pedidos
 Route::apiResource('carga_pedidos', CargaPedidoController::class);
