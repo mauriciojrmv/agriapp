@@ -93,4 +93,44 @@ class RutaPedidoController extends Controller
             return response()->json(['message' => 'Ruta de pedido no encontrada'], 404);
         }
     }
+
+    // Obtener todas las cargas asociadas con una ruta de pedido específica con detalles relevantes
+public function getCargasPedidos($id)
+{
+    try {
+        // Verificar si la RutaPedido existe
+        $rutaPedido = RutaPedido::findOrFail($id);
+
+        // Obtener las cargas asociadas a la RutaPedido
+        $cargas = RutaCargaPedido::where('id_ruta_pedido', $id)
+            ->with(['cargaPedido.pedidoDetalle.producto'])
+            ->get();
+
+        // Validar si se encontraron cargas asociadas
+        if ($cargas->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se encontraron cargas para esta ruta de pedido'
+            ], 404);
+        }
+
+        // Retornar la respuesta con las cargas
+        return response()->json([
+            'status' => 'success',
+            'data' => $cargas
+        ], 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Ruta de pedido no encontrada'
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Ocurrió un error al obtener las cargas',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

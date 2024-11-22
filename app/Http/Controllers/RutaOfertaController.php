@@ -98,7 +98,7 @@ class RutaOfertaController extends Controller
     }
 
     // Obtener todas las cargas asociadas con una ruta de oferta específica con detalles relevantes
-    public function getCargas($id)
+    public function getCargasOfertas($id)
     {
         try {
             $rutaOferta = RutaOferta::findOrFail($id);

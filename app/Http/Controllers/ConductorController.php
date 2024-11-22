@@ -7,6 +7,9 @@ use App\Models\Conductor;
 use App\Models\RutaCargaOferta;
 use App\Models\RutaOferta;
 use App\Models\CargaOferta;
+use App\Models\CargaPedido;
+use App\Models\RutaCargaPedido;
+use App\Models\RutaPedido;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
@@ -270,4 +273,101 @@ public function getConductoresPorTipo($tipo)
             return response()->json(['message' => 'Conductor no encontrado.'], 404);
         }
     }
+
+    // Obtener puntos de las rutas de pedidos con información de las cargas
+    public function getPuntosPedidos($id)
+    {
+        try {
+            $conductor = Conductor::findOrFail($id);
+            $rutasCargaPedidos = RutaCargaPedido::whereHas('transporte', function ($query) use ($conductor) {
+                $query->where('id_conductor', $conductor->id);
+            })
+                ->with(['cargaPedido.pedidoDetalle.producto'])
+                ->get();
+
+            $puntos = $rutasCargaPedidos->map(function ($rutaCarga) {
+                $carga = $rutaCarga->cargaPedido;
+                $detalle = $carga->pedidoDetalle;
+                $producto = $detalle->producto;
+
+                return [
+                    'lat' => $detalle->pedido->ubicacion_latitud,
+                    'lon' => $detalle->pedido->ubicacion_longitud,
+                    'tipo' => 'pedido',
+                    'id_carga_pedido' => $carga->id,
+                    'producto' => $producto->nombre,
+                    'cantidad' => $detalle->cantidad,
+                ];
+            });
+
+            return response()->json(['puntos_pedidos' => $puntos], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Conductor no encontrado.'], 404);
+        }
+    }
+
+    // Obtener rutas de carga de pedidos asociadas al conductor
+    public function getRutasCargasPedidos($id)
+    {
+        try {
+            $conductor = Conductor::findOrFail($id);
+            $rutasCargaPedidos = RutaCargaPedido::whereHas('transporte', function ($query) use ($conductor) {
+                $query->where('id_conductor', $conductor->id);
+            })
+                ->with(['rutaPedido'])
+                ->get();
+
+            return response()->json(['rutas_cargas_pedidos' => $rutasCargaPedidos], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Conductor no encontrado.'], 404);
+        }
+    }
+
+    // Obtener el orden de las cargas en las rutas de pedidos
+    public function getOrdenPedidos($id)
+    {
+        try {
+            $conductor = Conductor::findOrFail($id);
+            $rutasCargaPedidos = RutaCargaPedido::whereHas('transporte', function ($query) use ($conductor) {
+                $query->where('id_conductor', $conductor->id);
+            })
+                ->orderBy('orden')
+                ->get(['id', 'orden', 'id_carga_pedido', 'id_ruta_pedido']);
+
+            return response()->json(['orden_pedidos' => $rutasCargaPedidos], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Conductor no encontrado.'], 404);
+        }
+    }
+
+    // Obtener detalles de una carga específica de pedido
+    public function getDetallePedidoCarga($idCargaPedido)
+    {
+        try {
+            $cargaPedido = CargaPedido::with([
+                'pedidoDetalle.producto',
+                'pedidoDetalle.unidadMedida',
+            ])->findOrFail($idCargaPedido);
+
+            return response()->json(['detalle_carga_pedido' => $cargaPedido], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Carga de pedido no encontrada.'], 404);
+        }
+    }
+
+    // Obtener la fecha de entrega de las rutas del conductor
+    public function getFechaDelivery($id)
+    {
+        try {
+            $conductor = Conductor::findOrFail($id);
+            $rutasPedidos = RutaPedido::whereHas('rutaCargaPedido.transporte', function ($query) use ($conductor) {
+                $query->where('id_conductor', $conductor->id);
+            })->get(['id', 'fecha_entrega']);
+
+            return response()->json(['fechas_delivery' => $rutasPedidos], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Conductor no encontrado.'], 404);
+        }
+    }
+
 }

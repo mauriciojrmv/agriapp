@@ -38,6 +38,15 @@ Route::prefix('v1')->group(function () {
     Route::get('conductores/tipo/{tipo}', [ConductorController::class, 'getConductoresPorTipo'])
     ->name('conductores.porTipo');
 
+    Route::get('conductores/{id}/puntos-pedidos', [ConductorController::class, 'getPuntosPedidos'])->name('conductores.puntosPedidos');
+    Route::get('conductores/{id}/rutas-cargas-pedidos', [ConductorController::class, 'getRutasCargasPedidos'])->name('conductores.rutasCargasPedidos');
+    Route::get('conductores/{id}/orden-pedidos', [ConductorController::class, 'getOrdenPedidos'])->name('conductores.ordenPedidos');
+    Route::get('carga_pedidos/{idCargaPedido}/detalle', [ConductorController::class, 'getDetallePedidoCarga'])->name('cargaPedidos.detalle');
+    Route::get('conductores/{id}/fechas-delivery', [ConductorController::class, 'getFechaDelivery'])->name('conductores.fechasDelivery');
+    Route::get('conductores/{id}/carga_pedidos/{idCargaPedido}/detalle', [ConductorController::class, 'getDetallePedidoCarga'])
+    ->name('conductores.cargaPedidos.detalle');
+
+
 
     Route::apiResource('agricultors', AgricultorController::class);
     Route::get('agricultors/{id}/terrenos', [AgricultorController::class, 'getTerrenosByAgricultorId'])->name('agricultors.terrenosByAgricultor');
@@ -75,7 +84,7 @@ Route::prefix('v1')->group(function () {
     Route::put('pedidos/estado/batch', [PedidoController::class, 'updateEstadoBatch'])->name('pedidos.estado.batch');
 
     Route::apiResource('pedido_detalles', PedidoDetalleController::class);
-    Route::get('pedido_detalles/{id}/cargas', [PedidoDetalleController::class, 'getCargas'])->name('pedido_detalles.cargasList');
+    Route::get('pedido_detalles/{id}/cargas', [PedidoDetalleController::class, 'getCargasPedidos'])->name('pedido_detalles.cargasList');
 
     // Rutas para producciones, ofertas y detalles de ofertas
     Route::apiResource('producciones', ProduccionController::class);
@@ -86,6 +95,14 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('carga_ofertas', CargaOfertaController::class);
     Route::apiResource('ruta_ofertas', RutaOfertaController::class);
     Route::apiResource('ruta_carga_ofertas', RutaCargaOfertaController::class);
+    Route::get('ruta_ofertas/{id}/cargas', [RutaOfertaController::class, 'getCargasOfertas'])
+    ->name('ruta_ofertas.getCargas');
+    Route::get('ruta_ofertas/{id}/puntos-ruta', [RutaCargaOfertaController::class, 'getPuntosRuta'])
+    ->name('ruta_ofertas.puntosRuta');
+    Route::put('ruta_ofertas/{id}/terminar', [RutaOfertaController::class, 'terminarRuta'])
+    ->name('ruta_ofertas.terminarRuta');
+
+
 
     // Rutas personalizadas para RutaCargaOferta
     Route::put('ruta_carga_ofertas/{id}/estado-conductor', [RutaCargaOfertaController::class, 'updateEstadoConductor'])
@@ -94,14 +111,19 @@ Route::prefix('v1')->group(function () {
         ->name('ruta_carga_ofertas.confirmarRecogida'); // Confirmar recogida de carga
     Route::put('ruta_carga_ofertas/{id}/aceptar', [RutaCargaOfertaController::class, 'aceptarRuta'])
     ->name('ruta_carga_ofertas.aceptarRuta');
-    Route::get('ruta_ofertas/{id}/puntos-ruta', [RutaCargaOfertaController::class, 'getPuntosRuta'])
-    ->name('ruta_ofertas.puntosRuta');
+    Route::put('ruta_carga_ofertas/{id}/terminar', [RutaCargaOfertaController::class, 'terminarRuta'])
+    ->name('ruta_carga_ofertas.terminarRuta');
+
+
 
 // Rutas para cargas y rutas de pedidos
 Route::apiResource('carga_pedidos', CargaPedidoController::class);
 Route::apiResource('ruta_pedidos', RutaPedidoController::class);
 Route::apiResource('ruta_carga_pedidos', RutaCargaPedidoController::class);
 });
+Route::get('ruta_pedidos/{id}/cargas', [RutaPedidoController::class, 'getCargas'])
+    ->name('ruta_pedidos.getCargas');
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

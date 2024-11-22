@@ -25,4 +25,9 @@ class RutaCargaPedido extends Model
     {
         return $this->belongsTo(Transporte::class, 'id_transporte');
     }
+
+    public function conductor()
+    {
+        return $this->hasOneThrough(Conductor::class, Transporte::class, 'id_conductor', 'id', 'id_transporte', 'id');
+    }
 }

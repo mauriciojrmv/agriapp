@@ -262,6 +262,39 @@ public function getPuntosRuta($idRutaOferta)
     }
 }
 
+public function terminarRuta($idRutaOferta)
+{
+    try {
+        // Buscar la ruta
+        $rutaOferta = RutaOferta::with('rutaCargaOferta.transporte.conductor')->findOrFail($idRutaOferta);
+
+        // Cambiar el estado de la ruta a finalizado
+        $rutaOferta->update(['estado' => 'finalizado']);
+
+        // Cambiar el estado de las rutas de carga asociadas a finalizado
+        $rutaOferta->rutaCargaOferta()->update(['estado' => 'finalizado']);
+
+        // Cambiar el estado del conductor asociado a pendiente
+        foreach ($rutaOferta->rutaCargaOferta as $rutaCarga) {
+            $transporte = $rutaCarga->transporte;
+            if ($transporte && $transporte->conductor) {
+                $transporte->conductor->update(['estado' => 'pendiente']);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Ruta finalizada correctamente.',
+            'ruta_oferta' => $rutaOferta
+        ], 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Ruta no encontrada.'], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error al finalizar la ruta.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 
 }
