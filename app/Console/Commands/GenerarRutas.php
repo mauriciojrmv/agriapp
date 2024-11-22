@@ -58,7 +58,7 @@ class GenerarRutas extends Command
 
             $lat_acopio = env('ACOPIO_LAT');
             $lon_acopio = env('ACOPIO_LON');
-
+            echo "Variables de entorno Ubicacion: ". " ". $lat_acopio . " ". $lon_acopio ,PHP_EOL; 
             $lat_centro = ($lat_mi + $lat_acopio) / 2;
             $lon_centro = ($lon_mi + $lon_acopio) / 2;
             $radio = Utils::haversine($lat_mi, $lon_mi, $lat_acopio, $lon_acopio);
