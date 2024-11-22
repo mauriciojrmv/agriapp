@@ -55,9 +55,9 @@ class GenerarRutas extends Command
 
             $lat_mi = $transporte->conductor->ubicacion_latitud;
             $lon_mi = $transporte->conductor->ubicacion_longitud;
-
-            $lat_acopio = env('ACOPIO_LAT');
-            $lon_acopio = env('ACOPIO_LON');
+         
+            $lat_acopio =-17.75014430464653;//env('ACOPIO_LAT');
+            $lon_acopio = -63.09999390408235;// env('ACOPIO_LON');
             echo "Variables de entorno Ubicacion: ". " ". $lat_acopio . " ". $lon_acopio ,PHP_EOL; 
             $lat_centro = ($lat_mi + $lat_acopio) / 2;
             $lon_centro = ($lon_mi + $lon_acopio) / 2;
