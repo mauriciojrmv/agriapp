@@ -35,6 +35,8 @@ Route::prefix('v1')->group(function () {
     Route::get('conductores/{id}/fechas-recogida', [ConductorController::class, 'getFechaRecogida'])->name('conductores.fechasRecogida');
     Route::get('conductores/{id}/carga_ofertas/{idCargaOferta}/detalle', [ConductorController::class, 'getDetalleOfertaCarga'])
     ->name('conductores.cargaOfertas.detalle');
+    Route::get('conductores/tipo/{tipo}', [ConductorController::class, 'getConductoresPorTipo'])
+    ->name('conductores.porTipo');
 
 
     Route::apiResource('agricultors', AgricultorController::class);

@@ -37,6 +37,26 @@ class ConductorController extends Controller
                 'ubicacion_longitud' => 'nullable|numeric',
                 'estado' => 'sometimes|nullable|string|in:activo,inactivo',
                 'tokendevice' => 'nullable|string|unique:conductors,tokendevice',
+                'tipo' => 'required|string|in:recogo,delivery',
+            ], [
+                'nombre.required' => 'El campo nombre es obligatorio.',
+                'apellido.required' => 'El campo apellido es obligatorio.',
+                'carnet.required' => 'El campo carnet es obligatorio.',
+                'carnet.unique' => 'El carnet ya está en uso.',
+                'licencia_conducir.required' => 'El campo licencia de conducir es obligatorio.',
+                'fecha_nacimiento.required' => 'El campo fecha de nacimiento es obligatorio.',
+                'direccion.required' => 'El campo dirección es obligatorio.',
+                'email.required' => 'El campo email es obligatorio.',
+                'email.email' => 'El campo email debe ser una dirección de correo válida.',
+                'email.unique' => 'El email ya está en uso.',
+                'password.required' => 'El campo contraseña es obligatorio.',
+                'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+                'ubicacion_latitud.numeric' => 'La latitud debe ser un número.',
+                'ubicacion_longitud.numeric' => 'La longitud debe ser un número.',
+                'estado.in' => 'El campo estado solo puede tener los valores "activo" o "inactivo".',
+                'tokendevice.unique' => 'El token de dispositivo ya está en uso.',
+                'tipo.required' => 'El campo tipo es obligatorio.',
+                'tipo.in' => 'El tipo debe ser "recogo" o "delivery".',
             ]);
 
             $data = $request->all();
@@ -78,7 +98,8 @@ class ConductorController extends Controller
                 'ubicacion_latitud' => 'nullable|numeric',
                 'ubicacion_longitud' => 'nullable|numeric',
                 'estado' => 'sometimes|required|string|in:activo,inactivo',
-                'tokendevice' => 'nullable|string|unique:conductors,tokendevice,' . $id
+                'tokendevice' => 'nullable|string|unique:conductors,tokendevice,' . $id,
+                'tipo' => 'required|string|in:recogo,delivery',
             ], [
                 'nombre.required' => 'El campo nombre es obligatorio.',
                 'apellido.required' => 'El campo apellido es obligatorio.',
@@ -95,7 +116,8 @@ class ConductorController extends Controller
                 'ubicacion_latitud.numeric' => 'La latitud debe ser un número.',
                 'ubicacion_longitud.numeric' => 'La longitud debe ser un número.',
                 'estado.in' => 'El campo solo puede tener los valores de activo e inactivo.',
-                'tokendevice.unique' => 'El token de dispositivo ya está en uso.'
+                'tokendevice.unique' => 'El token de dispositivo ya está en uso.',
+                'tipo.in' => 'El tipo debe ser "recogo" o "delivery".',
             ]);
 
             $data = $request->all();
@@ -218,6 +240,20 @@ class ConductorController extends Controller
     }
 }
 
+public function getConductoresPorTipo($tipo)
+{
+    try {
+        $conductores = Conductor::where('tipo', $tipo)->get();
+
+        if ($conductores->isEmpty()) {
+            return response()->json(['message' => "No se encontraron conductores del tipo: $tipo"], 404);
+        }
+
+        return response()->json($conductores, 200);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al obtener conductores.', 'error' => $e->getMessage()], 500);
+    }
+}
 
 
     // Obtener la fecha de recogida de las rutas del conductor

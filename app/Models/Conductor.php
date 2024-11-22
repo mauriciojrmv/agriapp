@@ -12,7 +12,7 @@ class Conductor extends Model
     protected $fillable = [
         'nombre', 'apellido', 'carnet', 'licencia_conducir',
         'fecha_nacimiento', 'direccion', 'email', 'password',
-        'ubicacion_latitud', 'ubicacion_longitud', 'estado', 'tokendevice' // Incluye tokendevice
+        'ubicacion_latitud', 'ubicacion_longitud', 'estado', 'tokendevice', 'tipo'
     ];
 
     public function transportes()
