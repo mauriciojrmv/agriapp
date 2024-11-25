@@ -94,7 +94,6 @@ class Utils
     public static function buscarCargaCercana($cargas, $radio, $latPos, $lonPos)
     {
         $closestCarga = null;
-        $shortestDistance = PHP_INT_MAX; // Inicializar con un valor alto
         if ($cargas->isEmpty()) {
             return null; // No hay cargas para buscar
         }
@@ -108,8 +107,8 @@ class Utils
             $distance = self::haversine($latPos, $lonPos, $latCarga, $lonCarga);
 
             // Comparar si es la distancia más corta
-            if ($distance <= $radio) {
-                $shortestDistance = $distance;
+            if ($distance <= ($radio/2)) {
+                echo "Posicion de la carga: " . $latCarga . " " . $lonCarga, PHP_EOL;
                 $closestCarga = $carga; // Guardar solo la carga más cercana
             }
         }
@@ -126,7 +125,7 @@ class Utils
             $distance = self::haversine($lat_inicial, $lon_inicial, $latCarga, $lonCarga);
             // echo "Posicion de la carga: " . $latCarga . " " . $lonCarga, PHP_EOL;
 
-            if ($distance <= $radio) {
+            if ($distance < $radio) {
 
                 return $carga;
             }
@@ -140,30 +139,6 @@ class Utils
         });
     }
 
-    public static function getSigCargaMasCercana($cargas, $latPos, $lonPos, $idOfertaDetalle)
-    {
-        $closestCarga = null;
-        $shortestDistance = PHP_INT_MAX; // Inicializar con un valor alto
-
-        foreach ($cargas as $carga) {
-            if ($carga->id_oferta_detalle != $idOfertaDetalle) {
-                // Extraer latitud y longitud de la carga desde las relaciones
-                $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
-                $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
-
-                // Calcular la distancia usando la fórmula de Haversine
-                $distance = self::haversine($latPos, $lonPos, $latCarga, $lonCarga);
-
-                // Comparar si es la distancia más corta
-                if ($distance < $shortestDistance) {
-                    $shortestDistance = $distance;
-                    $closestCarga = $carga; // Guardar solo la carga más cercana
-                }
-            }
-        }
-
-        return $closestCarga; // Devolver la carga más cercana
-    }
 
 
     public static function getCargasSatisfacenAltransporte(Collection $cargas, int $cantidadRequerida): Collection

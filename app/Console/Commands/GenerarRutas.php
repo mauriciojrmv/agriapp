@@ -56,15 +56,15 @@ class GenerarRutas extends Command
             $lat_mi = $transporte->conductor->ubicacion_latitud;
             $lon_mi = $transporte->conductor->ubicacion_longitud;
          
-            $lat_acopio =-17.75014430464653;//env('ACOPIO_LAT');
-            $lon_acopio = -63.09999390408235;// env('ACOPIO_LON');
-            echo "Variables de entorno Ubicacion: ". " ". $lat_acopio . " ". $lon_acopio ,PHP_EOL; 
+            $lat_acopio =-17.750000;//env('ACOPIO_LAT');
+            $lon_acopio = -63.100000;// env('ACOPIO_LON');
+  
             $lat_centro = ($lat_mi + $lat_acopio) / 2;
             $lon_centro = ($lon_mi + $lon_acopio) / 2;
             $radio = Utils::haversine($lat_mi, $lon_mi, $lat_acopio, $lon_acopio);
             $pesoMax = $transporte->capacidadmaxkg;
             $cargaMasCercana = Utils::buscarCargaCercana($cargas, $radio, $lat_centro, $lon_centro);
-            //echo $cargaMasCercana->id . " " . $cargaMasCercana->id_oferta_detalle . " " . $cargaMasCercana->pesokg, PHP_EOL;
+
             if ($cargaMasCercana) {
                 $idOfertaDetalle =  $cargaMasCercana->id_oferta_detalle;
                 $cargasConMismoIdOferta = Utils::getCargasMismaIdOfertaDetalle($cargas, $idOfertaDetalle);
@@ -88,7 +88,7 @@ class GenerarRutas extends Command
                     ]);
                     $sw = true;
                     foreach ($cargasQueCumplen as $carga) {
-                        if ($sw) {
+             
                             RutaCargaOferta::insert([[
                                 'id_carga_oferta' => $carga->id,
                                 'id_ruta_oferta' => $rutaOferta->id,
@@ -100,13 +100,13 @@ class GenerarRutas extends Command
                                 'updated_at' => now()
                             ]]);
 
-                            $carga->update(['estado' => 'asignado']);
+                           // $carga->update(['estado' => 'asignado']);
                             $rutaOferta->capacidad_utilizada = $carga->pesokg;
                             $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                             $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
                             $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
-                            $sw = false;
-                        }
+                      
+                        
                     }
 
                     $rutaOferta->save();
@@ -142,7 +142,7 @@ class GenerarRutas extends Command
                             'created_at' => now(),
                             'updated_at' => now()
                         ]]);
-                        $carga->update(['estado' => 'asignado']);
+                        //$carga->update(['estado' => 'asignado']);
                         $rutaOferta->capacidad_utilizada = $carga->pesokg;
                         $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                         $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
@@ -187,7 +187,7 @@ class GenerarRutas extends Command
                                 'created_at' => now(),
                                 'updated_at' => now()
                             ]]);
-                            $carga->update(['estado' => 'asignado']);
+                           // $carga->update(['estado' => 'asignado']);
                             $rutaOferta->capacidad_utilizada += $carga->pesokg;
                             $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                             $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;

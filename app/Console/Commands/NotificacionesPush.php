@@ -31,8 +31,9 @@ class NotificacionesPush extends Command
 
         try {
            // $deviceToken = 'eq2vvfV6Q-qANxNPZiwcJH:APA91bHBUFtmUActqOO8o6xzF-AXLTUQ_Yg_wISm0cBWkKqZyLzCPsVYUrxBlhh0N1XdQo5GxAZOHk-iy7BslHKU0-UZDVeq0iMoiLHBcQXuZizkyFA2tNU';
-            $deviceToken = 'dKGi7eeGSwW7SLN-X3s2p-:APA91bH_yxRhqFw9nYsWColMDvz-mtgYfghV4kVOTlbEvzMh6jSMxHV-GZxaKY5787tgzY5DMttwxm4fkTrEkvJF_y8i57x6RQSsspm8Kr2HClz_r-a53YA';
+            $deviceToken = 'exbrpqSHSqGhL-EE49XNVi:APA91bGuflVTxExQxTJC4dwhlIJq3wylDAn8CIKuYnaBvTvyqBy0254985IEwC1N1E13t6arln2YVDQHgO0dp-awdTncY0LY11svkR8ZrApVRkeZKgtmpL8';
 
+            
             $title = 'Notificación de prueba';
             $body = 'Este es el cuerpo de la notificación';
             $locations = [
@@ -48,14 +49,14 @@ class NotificacionesPush extends Command
                 'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
             ];
 
-            $data = [
+           /*  $data = [
                "screen" => "CargaOfertaScreen",
             ];
-
+ */
 
 
             // Llamada al helper para enviar la notificación
-            $response = Utils::sendFcmNotificationWithLocations($deviceToken, $title, $body, $data, 1);
+            $response = Utils::sendFcmNotificationWithLocations($deviceToken, $title, $body, $data, 2);
 
             // Mostrar éxito en la consola
             $this->info('Notificación enviada con éxito: ' . json_encode($response));
