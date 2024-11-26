@@ -121,4 +121,93 @@ class RutaCargaPedidoController extends Controller
             return response()->json(['message' => 'Carga de ruta de pedido no encontrada'], 404);
         }
     }
+
+    public function confirmarPedido(Request $request, $id)
+{
+    try {
+        $rutaCargaPedido = RutaCargaPedido::findOrFail($id);
+
+        // Validar que la ruta esté en estado en_proceso
+        if ($rutaCargaPedido->estado !== 'en_proceso') {
+            return response()->json([
+                'message' => 'La carga no está en estado de proceso para ser confirmada.'
+            ], 422);
+        }
+
+        // Obtener la carga asociada
+        $cargaPedido = CargaPedido::findOrFail($rutaCargaPedido->id_carga_pedido);
+
+        // Actualizar el estado de la carga a finalizado
+        $cargaPedido->update(['estado' => 'finalizado']);
+        $rutaCargaPedido->update(['estado' => 'finalizado']);
+
+        // Verificar si todas las cargas asociadas a la ruta ya están finalizadas
+        $rutaPedido = $rutaCargaPedido->rutaPedido;
+        $cargasPendientes = $rutaPedido->rutaCargasPedidos()->where('estado', '!=', 'finalizado')->count();
+
+        if ($cargasPendientes === 0) {
+            // Todas las cargas están finalizadas; finalizar la ruta
+            $rutaPedido->update(['estado' => 'finalizado']);
+        } else {
+            // Mantener la ruta en estado en_proceso mientras haya cargas pendientes
+            $rutaPedido->update(['estado' => 'en_proceso']);
+        }
+
+        return response()->json([
+            'message' => 'Entrega del pedido confirmada exitosamente.',
+            'rutaCargaPedido' => $rutaCargaPedido,
+            'cargaPedido' => $cargaPedido,
+            'rutaPedido' => $rutaPedido,
+        ], 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'RutaCargaPedido o CargaPedido no encontrada.'], 404);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al confirmar la entrega.', 'error' => $e->getMessage()], 500);
+    }
+}
+
+
+public function getPuntosRuta($idRutaPedido)
+{
+    try {
+        // Recuperar la RutaPedido con sus RutaCargaPedido relacionadas
+        $rutaPedido = RutaPedido::with(['rutaCargaPedido.cargaPedido.pedidoDetalle.producto', 'rutaCargaPedido.cargaPedido.pedido.cliente'])
+            ->findOrFail($idRutaPedido);
+
+        // Obtener los puntos de entrega con información adicional
+        $puntos = $rutaPedido->rutaCargaPedido->map(function ($rutaCarga) {
+            $carga = $rutaCarga->cargaPedido;
+            $pedidoDetalle = $carga->pedidoDetalle;
+            $producto = $pedidoDetalle->producto;
+            $pedido = $carga->pedido;
+
+            return [
+                'lat' => $pedido->ubicacion_latitud, // Latitud del pedido (entrega)
+                'lon' => $pedido->ubicacion_longitud, // Longitud del pedido (entrega)
+                'tipo' => 'delivery',
+                'id_carga_pedido' => $carga->id,
+                'producto' => $producto->nombre,
+                'cantidad' => $pedidoDetalle->cantidad,
+                'unidad' => $producto->unidadMedida->nombre, // Asumiendo relación con UnidadMedida
+                'precio' => $pedidoDetalle->precio, // Precio del producto en el pedido
+            ];
+        });
+
+        // Agregar el punto de origen (punto de acopio)
+        $puntos->prepend([
+            'lat' => -17.750000, // Latitud del punto de acopio
+            'lon' => -63.100000, // Longitud del punto de acopio
+            'tipo' => 'punto_acopio',
+        ]);
+
+        return response()->json(['puntos_ruta' => $puntos], 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'RutaPedido no encontrada.'], 404);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al recuperar los puntos de la ruta.', 'error' => $e->getMessage()], 500);
+    }
+}
+
+
+
 }

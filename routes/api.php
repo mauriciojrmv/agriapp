@@ -116,13 +116,18 @@ Route::prefix('v1')->group(function () {
 
 
 
-// Rutas para cargas y rutas de pedidos
-Route::apiResource('carga_pedidos', CargaPedidoController::class);
-Route::apiResource('ruta_pedidos', RutaPedidoController::class);
-Route::apiResource('ruta_carga_pedidos', RutaCargaPedidoController::class);
-});
-Route::get('ruta_pedidos/{id}/cargas', [RutaPedidoController::class, 'getCargas'])
+    // Rutas para cargas y rutas de pedidos
+    Route::apiResource('carga_pedidos', CargaPedidoController::class);
+    Route::apiResource('ruta_pedidos', RutaPedidoController::class);
+    Route::apiResource('ruta_carga_pedidos', RutaCargaPedidoController::class);
+    });
+    Route::get('ruta_pedidos/{id}/cargas', [RutaPedidoController::class, 'getCargas'])
     ->name('ruta_pedidos.getCargas');
+    Route::put('ruta_carga_pedidos/{id}/confirmar-pedido', [RutaCargaPedidoController::class, 'confirmarPedido'])
+    ->name('ruta_carga_pedidos.confirmarPedido');
+    Route::get('ruta_pedidos/{idRutaPedido}/puntos-ruta', [RutaCargaPedidoController::class, 'getPuntosRuta'])
+    ->name('ruta_pedidos.puntosRuta');
+
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
