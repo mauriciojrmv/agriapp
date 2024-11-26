@@ -55,10 +55,10 @@ class GenerarRutas extends Command
 
             $lat_mi = $transporte->conductor->ubicacion_latitud;
             $lon_mi = $transporte->conductor->ubicacion_longitud;
-         
-            $lat_acopio =-17.750000;//env('ACOPIO_LAT');
-            $lon_acopio = -63.100000;// env('ACOPIO_LON');
-  
+
+            $lat_acopio = -17.750000; //env('ACOPIO_LAT');
+            $lon_acopio = -63.100000; // env('ACOPIO_LON');
+
             $lat_centro = ($lat_mi + $lat_acopio) / 2;
             $lon_centro = ($lon_mi + $lon_acopio) / 2;
             $radio = Utils::haversine($lat_mi, $lon_mi, $lat_acopio, $lon_acopio);
@@ -88,29 +88,27 @@ class GenerarRutas extends Command
                     ]);
                     $sw = true;
                     foreach ($cargasQueCumplen as $carga) {
-             
-                            RutaCargaOferta::insert([[
-                                'id_carga_oferta' => $carga->id,
-                                'id_ruta_oferta' => $rutaOferta->id,
-                                'id_transporte' => $transporte->id,
-                                'orden' => 1,
-                                'estado' => 'activo',
-                                'distancia' => 0,
-                                'created_at' => now(),
-                                'updated_at' => now()
-                            ]]);
 
-                           // $carga->update(['estado' => 'asignado']);
-                            $rutaOferta->capacidad_utilizada = $carga->pesokg;
-                            $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
-                            $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
-                            $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
-                      
-                        
+                        RutaCargaOferta::insert([[
+                            'id_carga_oferta' => $carga->id,
+                            'id_ruta_oferta' => $rutaOferta->id,
+                            'id_transporte' => $transporte->id,
+                            'orden' => 1,
+                            'estado' => 'activo',
+                            'distancia' => 0,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]]);
+
+                         $carga->update(['estado' => 'asignado']);
+                        $rutaOferta->capacidad_utilizada = $carga->pesokg;
+                        $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
+                        $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+                        $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
                     }
 
                     $rutaOferta->save();
-                    //$deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
+
                     $deviceToken = $transporte->conductor->tokendevice;
                     $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
                     echo print_r($locations, true);
@@ -142,7 +140,7 @@ class GenerarRutas extends Command
                             'created_at' => now(),
                             'updated_at' => now()
                         ]]);
-                        //$carga->update(['estado' => 'asignado']);
+                        $carga->update(['estado' => 'asignado']);
                         $rutaOferta->capacidad_utilizada = $carga->pesokg;
                         $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                         $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
@@ -150,7 +148,7 @@ class GenerarRutas extends Command
                     }
 
                     $rutaOferta->save();
-                    //$deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
+
                     $deviceToken = $transporte->conductor->tokendevice;
                     $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
                     echo print_r($locations, true);
@@ -187,7 +185,7 @@ class GenerarRutas extends Command
                                 'created_at' => now(),
                                 'updated_at' => now()
                             ]]);
-                           // $carga->update(['estado' => 'asignado']);
+                             $carga->update(['estado' => 'asignado']);
                             $rutaOferta->capacidad_utilizada += $carga->pesokg;
                             $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                             $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
@@ -195,8 +193,6 @@ class GenerarRutas extends Command
                         }
                         $rutaOferta->save();
 
-
-                        // $deviceToken = 'd9DDEyr4T_unqGNlo-5BB-:APA91bE1QTpbGgqItZ0DLgk7qYkVeAwv-MSqDgwN5SZHCGIw7uQWVwW-WV1ygO8R3UKz8Bl5bntRl2sQvRoTiJB68tp8as4ZbPrwN-F80ozch8yM2lOfkvc';
                         $deviceToken = $transporte->conductor->tokendevice;
                         $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
                         echo print_r($locations, true);
@@ -204,62 +200,92 @@ class GenerarRutas extends Command
                             $data = [
                                 'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                             ];
-                            
+
                             Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
                         }
                     } else {
-                        $peso70 = $pesoMax - ($pesoMax * 40 / 100);
-                        $peso50 = $pesoMax - ($pesoMax * 50 / 100);
-                        if ($sumaPesoKg >= $peso50 && $sumaPesoKg <= $peso70) {
-                            /**
-                             * *CARGAS IGUALES QUE POR LO MENOS CUMPLE CON ENTRE 50 Y 70 % DE LA CAPACIDAD DEL TRANSPORTE
-                             */
-                        } else {
-                            /**
-                             * *CARGAS IGUALES QUE ENTRE TODAS SUPERAN EL EL 70% DE LA CAPACIDAD DEL TRANSPORTE
-                             * *BUSCAR UNA CARGA ADICIONAL CERCANA A ESTA  PARA PODER COMPLETAR  DE LLENAR EL TRANSPORTE
-                             */
+
+                        /**
+                         * *CARGAS IGUALES QUE ENTRE TODAS SUPERAN EL EL 70% DE LA CAPACIDAD DEL TRANSPORTE
+                         * *BUSCAR UNA CARGA ADICIONAL CERCANA A ESTA  PARA PODER COMPLETAR  DE LLENAR EL TRANSPORTE
+                         */
 
 
 
-                            $cargasRuta = Utils::getCargasRuta($cargas, $radio, $lat_centro, $lon_centro);
+                        $cargasRuta = Utils::getCargasRuta($cargas, $radio, $lat_centro, $lon_centro, $pesoMax);
 
 
+                        $locations = [];
+                        $locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
+                        $rutaOferta  = RutaOferta::create([
+                            'fecha_recogida' => Carbon::now(),
+                            'capacidad_utilizada' => 0,
+                            'distancia_total' => 0,
+                            'estado' => 'activo'
+                        ]);
+
+                        foreach ($cargasRuta as $carga) {
+                            RutaCargaOferta::insert([[
+                                'id_carga_oferta' => $carga->id,
+                                'id_ruta_oferta' => $rutaOferta->id,
+                                'id_transporte' => $transporte->id,
+                                'orden' => 1,
+                                'estado' => 'activo',
+                                'distancia' => 0,
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]]);
+                             $carga->update(['estado' => 'asignado']);
+                            $rutaOferta->capacidad_utilizada += $carga->pesokg;
+                            $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
+                            $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+                            $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
+                        }
+                        $rutaOferta->save();
+
+                        $deviceToken = $transporte->conductor->tokendevice;
+                        $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
+
+                        if ($deviceToken) {
+                            $data = [
+                                'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
+                            ];
+
+                            Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
+                        }
 
 
+                        $data = [];
+                        echo "Punto de Partida: " . $lat_mi . " " . $lon_mi, PHP_EOL;
+                        echo "Punto de Llegada: " . $lat_acopio . " " . $lon_acopio, PHP_EOL;
 
-                            /* $data = [];
-                            echo "Punto de Partida: " . $lat_mi . " " . $lon_mi, PHP_EOL;
-                            echo "Punto de Llegada: " . $lat_acopio . " " . $lon_acopio, PHP_EOL;
+                        foreach ($cargasRuta as $carga) {
+                            $data[] = [
+                                $carga->id,
+                                $carga->id_oferta_detalle,
+                                $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud,
+                                $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud,
+                                $carga->pesokg,
+                            ];
+                        }
 
-                            foreach ($cargasRuta as $carga) {
-                                $data[] = [
-                                    $carga->id,
-                                    $carga->id_oferta_detalle,
-                                    $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud,
-                                    $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud,
-                                    $carga->pesokg,
-                                ];
-                            }
+                        // Crear la salida en consola
+                        $output = new ConsoleOutput();
+                        $table = new Table($output);
 
-                            // Crear la salida en consola
-                            $output = new ConsoleOutput();
-                            $table = new Table($output);
+                        // Definir encabezados y filas
+                        $table
+                            ->setHeaders(['id', 'id_oferta_detalle', 'lat', 'lon',  'pesokg'])
+                            ->setRows($data);
 
-                            // Definir encabezados y filas
-                            $table
-                                ->setHeaders(['id', 'id_oferta_detalle', 'lat', 'lon',  'pesokg'])
-                                ->setRows($data);
-
-                            // Renderizar la tabla
-                            $table->render(); */
-                            /* echo "Peso capacidad del Transporte: " . $pesoMax, PHP_EOL;
+                        // Renderizar la tabla
+                        $table->render();
+                        /* echo "Peso capacidad del Transporte: " . $pesoMax, PHP_EOL;
                         echo "Peso capacidad 70: " . $peso70, PHP_EOL;
                         echo "Peso capacidad 50: " . $peso50, PHP_EOL;
                         echo "Peso de la Carga: " . $sumaPesoKg, PHP_EOL;
                         echo $transporte->modelo, PHP_EOL;
                         echo "Ni la suma de todas las cargas con la misma IdOferta cumplen", PHP_EOL; */
-                        }
                     }
                 }
             }

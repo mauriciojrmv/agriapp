@@ -107,8 +107,8 @@ class Utils
             $distance = self::haversine($latPos, $lonPos, $latCarga, $lonCarga);
 
             // Comparar si es la distancia más corta
-            if ($distance <= ($radio/2)) {
-                echo "Posicion de la carga: " . $latCarga . " " . $lonCarga, PHP_EOL;
+            if ($distance <= ($radio / 2)) {
+
                 $closestCarga = $carga; // Guardar solo la carga más cercana
             }
         }
@@ -116,18 +116,27 @@ class Utils
         return $closestCarga; // Devolver la carga más cercana
     }
 
-    public static function getCargasRuta($cargas, $radio, $lat_inicial, $lon_inicial): Collection
+    public static function getCargasRuta($cargas, $radio, $lat_inicial, $lon_inicial, $pesoMax): Collection
     {
+        $cantidadAcumulada = 0;
 
-        return $cargas->filter(function ($carga) use ($radio, $lat_inicial, $lon_inicial) {
+        return $cargas->filter(function ($carga) use ($radio, $lat_inicial, $lon_inicial, &$cantidadAcumulada, $pesoMax) {
             $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
             $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
             $distance = self::haversine($lat_inicial, $lon_inicial, $latCarga, $lonCarga);
             // echo "Posicion de la carga: " . $latCarga . " " . $lonCarga, PHP_EOL;
 
-            if ($distance < $radio) {
+            $cargaKg = $carga->pesokg;
 
-                return $carga;
+            $sum = $cargaKg + $cantidadAcumulada;
+
+            if ($distance < ($radio / 2)) {
+                if ($cantidadAcumulada <= $pesoMax && $sum <= $pesoMax) {
+                    $cantidadAcumulada += $cargaKg;
+                    echo "Entro" . " " . $pesoMax, PHP_EOL;
+
+                    return true;
+                }
             }
         });
     }
@@ -148,8 +157,7 @@ class Utils
         return $cargas->filter(function ($carga) use (&$cantidadAcumulada, $cantidadRequerida) {
             // Calcular la cantidad disponible para este detalle
             $cargaKg = $carga->pesokg;
-            $mas10 = $cantidadRequerida + ($cantidadRequerida * 10 / 100);
-            $menos10 = $cantidadRequerida - ($cantidadRequerida * 10 / 100);
+
             $sum = $cargaKg + $cantidadAcumulada;
 
             // Verificar si aún necesitamos acumular más cantidad

@@ -19,11 +19,12 @@ class ConductoresSeeder extends Seeder
                 'direccion' => 'Av. Siempre Viva 123',
                 'email' => 'juan.perez@example.com',
                 'password' => bcrypt('password123'),
-                'ubicacion_latitud' => -17.510727,
-                'ubicacion_longitud' => -63.172123,
+                'ubicacion_latitud' =>   -15.018948849544243,
+                'ubicacion_longitud' => -64.7503006130204,
                 'estado' => 'activo',
                 'created_at' => now(),
                 'updated_at' => now()
+
             ],
             [
                 'nombre' => 'Luis',
