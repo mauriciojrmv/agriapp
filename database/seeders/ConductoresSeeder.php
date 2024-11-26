@@ -22,6 +22,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' =>   -15.018948849544243,
                 'ubicacion_longitud' => -64.7503006130204,
                 'estado' => 'activo',
+                'tipo' => 'recogo',
                 'created_at' => now(),
                 'updated_at' => now()
 
@@ -38,6 +39,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.338007,
                 'ubicacion_longitud' => -63.257834,
                 'estado' => 'activo',
+                'tipo' => 'recogo',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -53,6 +55,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.848766,
                 'ubicacion_longitud' => -63.225896,
                 'estado' => 'activo',
+                'tipo' => 'recogo',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -68,6 +71,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.747318,
                 'ubicacion_longitud' => -63.094204,
                 'estado' => 'activo',
+                'tipo' => 'recogo',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -83,6 +87,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.986115,
                 'ubicacion_longitud' => -63.365089,
                 'estado' => 'activo',
+                'tipo' => 'recogo',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -98,6 +103,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.800951,
                 'ubicacion_longitud' => -63.479062,
                 'estado' => 'activo',
+                'tipo' => 'recogo',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -113,6 +119,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.458926,
                 'ubicacion_longitud' => -63.666389,
                 'estado' => 'activo',
+                'tipo' => 'recogo',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -128,6 +135,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.656453,
                 'ubicacion_longitud' => -62.814606,
                 'estado' => 'activo',
+                'tipo' => 'recogo',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -143,6 +151,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.401688,
                 'ubicacion_longitud' => -63.828387,
                 'estado' => 'activo',
+                'tipo' => 'delivery',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -158,6 +167,7 @@ class ConductoresSeeder extends Seeder
                 'ubicacion_latitud' => -17.777920,
                 'ubicacion_longitud' => -62.897094,
                 'estado' => 'activo',
+                'tipo' => 'delivery',
                 'created_at' => now(),
                 'updated_at' => now()
             ]
