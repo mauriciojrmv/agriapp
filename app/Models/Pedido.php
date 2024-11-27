@@ -20,4 +20,15 @@ class Pedido extends Model
     {
         return $this->hasMany(PedidoDetalle::class, 'id_pedido');
     }
+
+    public function pedidoDetalles()
+{
+    return $this->hasMany(PedidoDetalle::class, 'id_pedido');
+}
+
+public function cargaOfertas()
+{
+    return $this->hasMany(CargaOferta::class, 'id_pedido');
+}
+
 }

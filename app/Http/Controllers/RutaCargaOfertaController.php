@@ -191,7 +191,7 @@ public function aceptarRuta(Request $request, $idRutaOferta)
 public function confirmarRecogida(Request $request, $id)
 {
     try {
-        $rutaCargaOferta = RutaCargaOferta::findOrFail($id);
+        $rutaCargaOferta = RutaCargaOferta::with('cargaOferta.ofertaDetalle')->findOrFail($id);
 
         // Validar el estado de la ruta antes de continuar
         if ($rutaCargaOferta->estado !== 'en_proceso') {
@@ -201,7 +201,7 @@ public function confirmarRecogida(Request $request, $id)
         }
 
         // Obtener la carga asociada
-        $cargaOferta = CargaOferta::findOrFail($rutaCargaOferta->id_carga_oferta);
+        $cargaOferta = $rutaCargaOferta->cargaOferta;
 
         // Actualizar el estado de la carga a 'finalizado'
         $cargaOferta->update(['estado' => 'finalizado']);
@@ -209,10 +209,24 @@ public function confirmarRecogida(Request $request, $id)
         // Confirmar recogida y mantener estado de RutaCargaOferta
         $rutaCargaOferta->update(['estado' => 'en_proceso']);
 
+        // Verificar si todas las cargas asociadas al pedido ya están finalizadas
+        $pedido = $cargaOferta->pedido; // Asegúrate de tener la relación configurada correctamente
+        if ($pedido) {
+            $cargasPendientes = $pedido->pedidoDetalles()->whereHas('cargaOfertas', function ($query) {
+                $query->where('estado', '!=', 'finalizado');
+            })->count();
+
+            if ($cargasPendientes === 0) {
+                // Todas las cargas del pedido están finalizadas; actualizar el estado del pedido
+                $pedido->update(['estado' => 'recogido']);
+            }
+        }
+
         return response()->json([
             'message' => 'Recogida de la carga confirmada exitosamente.',
             'rutaCargaOferta' => $rutaCargaOferta,
             'cargaOferta' => $cargaOferta,
+            'pedido' => $pedido ?? null, // Retornar el pedido si existe
         ], 200);
     } catch (ModelNotFoundException $e) {
         return response()->json(['message' => 'RutaCargaOferta o CargaOferta no encontrada.'], 404);
@@ -220,6 +234,7 @@ public function confirmarRecogida(Request $request, $id)
         return response()->json(['message' => 'Error al confirmar la recogida.', 'error' => $e->getMessage()], 500);
     }
 }
+
 
 public function getPuntosRuta($idRutaOferta)
 {

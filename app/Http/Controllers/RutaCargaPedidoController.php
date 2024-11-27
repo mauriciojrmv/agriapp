@@ -123,48 +123,61 @@ class RutaCargaPedidoController extends Controller
     }
 
     public function confirmarPedido(Request $request, $id)
-{
-    try {
-        $rutaCargaPedido = RutaCargaPedido::findOrFail($id);
+    {
+        try {
+            $rutaCargaPedido = RutaCargaPedido::findOrFail($id);
 
-        // Validar que la ruta esté en estado en_proceso
-        if ($rutaCargaPedido->estado !== 'en_proceso') {
+            // Validar que la ruta esté en estado en_proceso
+            if ($rutaCargaPedido->estado !== 'en_proceso') {
+                return response()->json([
+                    'message' => 'La carga no está en estado de proceso para ser confirmada.'
+                ], 422);
+            }
+
+            // Obtener la carga asociada
+            $cargaPedido = CargaPedido::with('pedido')->findOrFail($rutaCargaPedido->id_carga_pedido);
+
+            // Actualizar el estado de la carga a finalizado
+            $cargaPedido->update(['estado' => 'finalizado']);
+            $rutaCargaPedido->update(['estado' => 'finalizado']);
+
+            // Verificar si todas las cargas asociadas a la ruta ya están finalizadas
+            $rutaPedido = $rutaCargaPedido->rutaPedido;
+            $cargasPendientesRuta = $rutaPedido->rutaCargasPedidos()->where('estado', '!=', 'finalizado')->count();
+
+            if ($cargasPendientesRuta === 0) {
+                // Todas las cargas en esta ruta están finalizadas; finalizar la ruta
+                $rutaPedido->update(['estado' => 'finalizado']);
+            } else {
+                // Mantener la ruta en estado en_proceso mientras haya cargas pendientes
+                $rutaPedido->update(['estado' => 'en_proceso']);
+            }
+
+            // Verificar si todas las cargas del pedido están finalizadas
+            $pedido = $cargaPedido->pedido;
+            $cargasPedidoPendientes = $pedido->pedidoDetalles()->whereHas('cargaPedidos', function ($query) {
+                $query->where('estado', '!=', 'finalizado');
+            })->count();
+
+            if ($cargasPedidoPendientes === 0) {
+                // Todas las cargas asociadas al pedido están finalizadas; finalizar el pedido
+                $pedido->update(['estado' => 'finalizado']);
+            }
+
             return response()->json([
-                'message' => 'La carga no está en estado de proceso para ser confirmada.'
-            ], 422);
+                'message' => 'Entrega del pedido confirmada exitosamente.',
+                'rutaCargaPedido' => $rutaCargaPedido,
+                'cargaPedido' => $cargaPedido,
+                'rutaPedido' => $rutaPedido,
+                'pedido' => $pedido,
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'RutaCargaPedido, CargaPedido o Pedido no encontrado.'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al confirmar la entrega.', 'error' => $e->getMessage()], 500);
         }
-
-        // Obtener la carga asociada
-        $cargaPedido = CargaPedido::findOrFail($rutaCargaPedido->id_carga_pedido);
-
-        // Actualizar el estado de la carga a finalizado
-        $cargaPedido->update(['estado' => 'finalizado']);
-        $rutaCargaPedido->update(['estado' => 'finalizado']);
-
-        // Verificar si todas las cargas asociadas a la ruta ya están finalizadas
-        $rutaPedido = $rutaCargaPedido->rutaPedido;
-        $cargasPendientes = $rutaPedido->rutaCargasPedidos()->where('estado', '!=', 'finalizado')->count();
-
-        if ($cargasPendientes === 0) {
-            // Todas las cargas están finalizadas; finalizar la ruta
-            $rutaPedido->update(['estado' => 'finalizado']);
-        } else {
-            // Mantener la ruta en estado en_proceso mientras haya cargas pendientes
-            $rutaPedido->update(['estado' => 'en_proceso']);
-        }
-
-        return response()->json([
-            'message' => 'Entrega del pedido confirmada exitosamente.',
-            'rutaCargaPedido' => $rutaCargaPedido,
-            'cargaPedido' => $cargaPedido,
-            'rutaPedido' => $rutaPedido,
-        ], 200);
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['message' => 'RutaCargaPedido o CargaPedido no encontrada.'], 404);
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Error al confirmar la entrega.', 'error' => $e->getMessage()], 500);
     }
-}
+
 
 
 public function getPuntosRuta($idRutaPedido)

@@ -21,4 +21,10 @@ class CargaOferta extends Model
     {
         return $this->hasMany(RutaCargaOferta::class, 'id_carga_oferta');
     }
+
+    public function pedido()
+{
+    return $this->belongsTo(Pedido::class, 'id_pedido');
+}
+
 }
