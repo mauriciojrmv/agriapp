@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
             OfertaDetalleSeeder::class,
             PedidoSeeder::class,
             PedidoDetalleSeeder::class,
+            CargaPedidoSeeder::class,
+            RutaPedidoSeeder::class,
+            RutaCargaPedidoSeeder::class,
 
             // Aqui agregamos mas seeders
             ]);
