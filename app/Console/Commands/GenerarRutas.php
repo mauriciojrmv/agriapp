@@ -78,7 +78,7 @@ class GenerarRutas extends Command
                     //echo "Existe mas de una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
                     //echo "Cantidad: " . $cargasQueCumplen->count(), PHP_EOL;
                     $locations = [];
-                    $locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
+                    //$locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
 
                     $rutaOferta  = RutaOferta::create([
                         'fecha_recogida' => Carbon::now(),
@@ -86,7 +86,7 @@ class GenerarRutas extends Command
                         'distancia_total' => 0,
                         'estado' => 'activo'
                     ]);
-                    $sw = true;
+                   
                     foreach ($cargasQueCumplen as $carga) {
 
                         RutaCargaOferta::insert([[
@@ -121,7 +121,7 @@ class GenerarRutas extends Command
                 } elseif ($cargasQueCumplen->count() == 1) {
                     //echo "Existe una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
                     $locations = [];
-                    $locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
+                    //$locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
                     $rutaOferta  = RutaOferta::create([
                         'fecha_recogida' => Carbon::now(),
                         'capacidad_utilizada' => 0,
@@ -166,7 +166,7 @@ class GenerarRutas extends Command
                     $sumaPesoKg = $sumcargasQueCumplen->sum('pesokg');
                     if ($sumaPesoKg >= $menos10 && $sumaPesoKg <= $mas10) {
                         $locations = [];
-                        $locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
+                        //$locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
                         $rutaOferta  = RutaOferta::create([
                             'fecha_recogida' => Carbon::now(),
                             'capacidad_utilizada' => 0,
@@ -216,7 +216,7 @@ class GenerarRutas extends Command
 
 
                         $locations = [];
-                        $locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
+                        //$locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
                         $rutaOferta  = RutaOferta::create([
                             'fecha_recogida' => Carbon::now(),
                             'capacidad_utilizada' => 0,
