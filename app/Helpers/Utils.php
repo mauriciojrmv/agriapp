@@ -133,7 +133,6 @@ class Utils
             if ($distance < ($radio / 2)) {
                 if ($cantidadAcumulada <= $pesoMax && $sum <= $pesoMax) {
                     $cantidadAcumulada += $cargaKg;
-                    echo "Entro" . " " . $pesoMax, PHP_EOL;
 
                     return true;
                 }
@@ -273,4 +272,39 @@ class Utils
 
         throw new \Exception('Error al enviar la notificación: ' . $response->body());
     }
+
+    /** 
+     * * PARA RUTAS DELIVERY
+     */
+
+    public static function getCargaCompleta(Collection $cargas, float $cantidadRequerida): ?object
+    {
+
+        return $cargas->first(function ($carga) use ($cantidadRequerida) {
+            $cargaKg = $carga->cantidad;
+            $mas10 = $cantidadRequerida + ($cantidadRequerida * 10 / 100);
+            $menos10 = $cantidadRequerida - ($cantidadRequerida * 10 / 100);
+
+            return $cargaKg >= $menos10 && $cargaKg <= $mas10;
+        });
+    }
+
+    public static function getCargasSatisfacenC(Collection $cargas, int $cantidadRequerida): Collection
+    {
+        $cantidadAcumulada = 0;
+
+        return $cargas->filter(function ($carga) use (&$cantidadAcumulada, $cantidadRequerida) {
+
+            $cargaKg = $carga->cantidad;
+
+            $sum = $cargaKg + $cantidadAcumulada;
+            if ($cantidadAcumulada <= $cantidadRequerida && $sum <= $cantidadRequerida) {
+                $cantidadAcumulada += $cargaKg;
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public static function getTransportesLlevenCargas(Collection $transportes, $carga) {}
 }

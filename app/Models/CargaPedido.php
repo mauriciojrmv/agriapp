@@ -9,7 +9,7 @@ class CargaPedido extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_pedido_detalle', 'cantidad', 'estado'];
+    protected $fillable = ['id_pedido_detalle', 'cantidad', 'estado', 'cantidad_i'];
 
     public function pedidoDetalle()
     {

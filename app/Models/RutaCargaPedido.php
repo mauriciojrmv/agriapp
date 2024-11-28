@@ -9,7 +9,7 @@ class RutaCargaPedido extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_carga_pedido', 'id_ruta_pedido', 'id_transporte', 'orden', 'estado', 'distancia'];
+    protected $fillable = ['id_carga_pedido', 'id_ruta_pedido', 'id_transporte', 'orden', 'cantidad', 'estado', 'distancia'];
 
     public function cargaPedido()
     {

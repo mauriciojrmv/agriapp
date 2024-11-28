@@ -47,7 +47,9 @@ class GenerarRutas extends Command
          */
 
 
-        $transportes = Transporte::all();
+        $transportes = Transporte::all()->filter(function ($transporte) {
+            return $transporte->conductor->tipo == "recogo";
+        });
 
 
         foreach ($transportes as $transporte) {
@@ -75,8 +77,7 @@ class GenerarRutas extends Command
                  * * EXISTE MAS DE UNA SOLA CARGA QUE LLENA TODA LA CAPACIDAD
                  */
                 if ($cargasQueCumplen->count() > 1) {
-                    //echo "Existe mas de una sola carga que satisface la capacidad por completo o casi por completo", PHP_EOL;
-                    //echo "Cantidad: " . $cargasQueCumplen->count(), PHP_EOL;
+
                     $locations = [];
                     //$locations[] = ['lat' => $lat_mi, 'lon' => $lon_mi];
 
@@ -86,7 +87,7 @@ class GenerarRutas extends Command
                         'distancia_total' => 0,
                         'estado' => 'activo'
                     ]);
-                   
+
                     foreach ($cargasQueCumplen as $carga) {
 
                         RutaCargaOferta::insert([[
@@ -94,26 +95,25 @@ class GenerarRutas extends Command
                             'id_ruta_oferta' => $rutaOferta->id,
                             'id_transporte' => $transporte->id,
                             'orden' => 1,
+                            'cantidad' => $carga->pesokg - $carga->cantidad_i,
                             'estado' => 'activo',
                             'distancia' => 0,
                             'created_at' => now(),
                             'updated_at' => now()
                         ]]);
 
-                         $carga->update(['estado' => 'asignado']);
-                        $rutaOferta->capacidad_utilizada = $carga->pesokg;
+                        $carga->update(['estado' => 'asignado']);
+                        $rutaOferta->capacidad_utilizada += $carga->pesokg - $carga->cantidad_i;
                         $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                         $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
                         $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
                     }
-
                     $rutaOferta->save();
-
                     $deviceToken = $transporte->conductor->tokendevice;
                     $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
-                    echo print_r($locations, true);
                     if ($deviceToken) {
                         $data = [
+                            'ruta_id' => $rutaOferta->id,
                             'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                         ];
                         Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
@@ -135,13 +135,14 @@ class GenerarRutas extends Command
                             'id_ruta_oferta' => $rutaOferta->id,
                             'id_transporte' => $transporte->id,
                             'orden' => 1,
+                            'cantidad' => $carga->pesokg - $carga->cantidad_i,
                             'estado' => 'activo',
                             'distancia' => 0,
                             'created_at' => now(),
                             'updated_at' => now()
                         ]]);
                         $carga->update(['estado' => 'asignado']);
-                        $rutaOferta->capacidad_utilizada = $carga->pesokg;
+                        $rutaOferta->capacidad_utilizada += $carga->pesokg - $carga->cantidad_i;
                         $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                         $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
                         $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
@@ -151,9 +152,10 @@ class GenerarRutas extends Command
 
                     $deviceToken = $transporte->conductor->tokendevice;
                     $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
-                    echo print_r($locations, true);
+                    //echo print_r($locations, true);
                     if ($deviceToken) {
                         $data = [
+                            'ruta_id' => $rutaOferta->id,
                             'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                         ];
                         Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
@@ -180,13 +182,14 @@ class GenerarRutas extends Command
                                 'id_ruta_oferta' => $rutaOferta->id,
                                 'id_transporte' => $transporte->id,
                                 'orden' => 1,
+                                'cantidad' => $carga->pesokg - $carga->cantidad_i,
                                 'estado' => 'activo',
                                 'distancia' => 0,
                                 'created_at' => now(),
                                 'updated_at' => now()
                             ]]);
-                             $carga->update(['estado' => 'asignado']);
-                            $rutaOferta->capacidad_utilizada += $carga->pesokg;
+                            $carga->update(['estado' => 'asignado']);
+                            $rutaOferta->capacidad_utilizada +=  $carga->pesokg - $carga->cantidad_i;
                             $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                             $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
                             $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
@@ -195,9 +198,10 @@ class GenerarRutas extends Command
 
                         $deviceToken = $transporte->conductor->tokendevice;
                         $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
-                        echo print_r($locations, true);
+                        //echo print_r($locations, true);
                         if ($deviceToken) {
                             $data = [
+                                'ruta_id' => $rutaOferta->id,
                                 'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                             ];
 
@@ -230,13 +234,14 @@ class GenerarRutas extends Command
                                 'id_ruta_oferta' => $rutaOferta->id,
                                 'id_transporte' => $transporte->id,
                                 'orden' => 1,
+                                'cantidad' => $carga->pesokg - $carga->cantidad_i,
                                 'estado' => 'activo',
                                 'distancia' => 0,
                                 'created_at' => now(),
                                 'updated_at' => now()
                             ]]);
-                             $carga->update(['estado' => 'asignado']);
-                            $rutaOferta->capacidad_utilizada += $carga->pesokg;
+                            $carga->update(['estado' => 'asignado']);
+                            $rutaOferta->capacidad_utilizada += $carga->pesokg - $carga->cantidad_i;
                             $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud;
                             $lonCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud;
                             $locations[] = ['lat' => $latCarga, 'lon' => $lonCarga];
@@ -248,44 +253,12 @@ class GenerarRutas extends Command
 
                         if ($deviceToken) {
                             $data = [
+                                'ruta_id' => $rutaOferta->id,
                                 'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                             ];
 
                             Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
                         }
-
-
-                        $data = [];
-                        echo "Punto de Partida: " . $lat_mi . " " . $lon_mi, PHP_EOL;
-                        echo "Punto de Llegada: " . $lat_acopio . " " . $lon_acopio, PHP_EOL;
-
-                        foreach ($cargasRuta as $carga) {
-                            $data[] = [
-                                $carga->id,
-                                $carga->id_oferta_detalle,
-                                $latCarga = $carga->ofertaDetalle->produccion->terreno->ubicacion_latitud,
-                                $carga->ofertaDetalle->produccion->terreno->ubicacion_longitud,
-                                $carga->pesokg,
-                            ];
-                        }
-
-                        // Crear la salida en consola
-                        $output = new ConsoleOutput();
-                        $table = new Table($output);
-
-                        // Definir encabezados y filas
-                        $table
-                            ->setHeaders(['id', 'id_oferta_detalle', 'lat', 'lon',  'pesokg'])
-                            ->setRows($data);
-
-                        // Renderizar la tabla
-                        $table->render();
-                        /* echo "Peso capacidad del Transporte: " . $pesoMax, PHP_EOL;
-                        echo "Peso capacidad 70: " . $peso70, PHP_EOL;
-                        echo "Peso capacidad 50: " . $peso50, PHP_EOL;
-                        echo "Peso de la Carga: " . $sumaPesoKg, PHP_EOL;
-                        echo $transporte->modelo, PHP_EOL;
-                        echo "Ni la suma de todas las cargas con la misma IdOferta cumplen", PHP_EOL; */
                     }
                 }
             }

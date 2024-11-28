@@ -17,10 +17,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_pedido_detalle')->constrained('pedido_detalles');
             $table->integer('cantidad');
+            $table->integer('cantidad_i')->default(0);
             $table->string('estado');
             $table->timestamps();
         });
-
     }
 
     /**

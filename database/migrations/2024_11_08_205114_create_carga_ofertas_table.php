@@ -17,11 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_oferta_detalle')->constrained('oferta_detalles');
             $table->integer('pesokg');
+            $table->integer('cantidad_i')->default(0);
             $table->decimal('precio', 10, 2);
             $table->string('estado');
             $table->timestamps();
         });
-
     }
 
     /**
