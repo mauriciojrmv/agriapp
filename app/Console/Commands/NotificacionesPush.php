@@ -30,10 +30,10 @@ class NotificacionesPush extends Command
     {
 
         try {
-           // $deviceToken = 'eq2vvfV6Q-qANxNPZiwcJH:APA91bHBUFtmUActqOO8o6xzF-AXLTUQ_Yg_wISm0cBWkKqZyLzCPsVYUrxBlhh0N1XdQo5GxAZOHk-iy7BslHKU0-UZDVeq0iMoiLHBcQXuZizkyFA2tNU';
-            $deviceToken = 'exbrpqSHSqGhL-EE49XNVi:APA91bGuflVTxExQxTJC4dwhlIJq3wylDAn8CIKuYnaBvTvyqBy0254985IEwC1N1E13t6arln2YVDQHgO0dp-awdTncY0LY11svkR8ZrApVRkeZKgtmpL8';
+            // $deviceToken = 'eq2vvfV6Q-qANxNPZiwcJH:APA91bHBUFtmUActqOO8o6xzF-AXLTUQ_Yg_wISm0cBWkKqZyLzCPsVYUrxBlhh0N1XdQo5GxAZOHk-iy7BslHKU0-UZDVeq0iMoiLHBcQXuZizkyFA2tNU';
+            $deviceToken = 'e9gJF7R4TK6MG1POUTzF-Q:APA91bFf7n4OQA0MXcU3EKZJ5of7WmyT4b4qXt9NMTIC9t7acHMqDEJo0-rbj_pyPRYgjipk0hhPq0-EQ2FZ_Yx8hbki1khTypaqck9oNKyq4EShin6z7rM';
 
-            
+
             $title = 'Notificación de prueba';
             $body = 'Este es el cuerpo de la notificación';
             $locations = [
@@ -45,11 +45,13 @@ class NotificacionesPush extends Command
 
                 ['lat' => -17.813220975272536, 'lon' => -63.20867850922002]
             ];
+            $id = 1;
             $data = [
+                'id' => json_encode($id),
                 'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
             ];
 
-           /*  $data = [
+            /*  $data = [
                "screen" => "CargaOfertaScreen",
             ];
  */

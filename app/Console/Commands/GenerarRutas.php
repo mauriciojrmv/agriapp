@@ -113,7 +113,7 @@ class GenerarRutas extends Command
                     $locations[] = ['lat' => $lat_acopio, 'lon' => $lon_acopio];
                     if ($deviceToken) {
                         $data = [
-                            'id' => $rutaOferta->id,
+                            'id' => json_encode($rutaOferta->id),
                             'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                         ];
                         Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
@@ -155,7 +155,7 @@ class GenerarRutas extends Command
                     //echo print_r($locations, true);
                     if ($deviceToken) {
                         $data = [
-                            'id' => $rutaOferta->id,
+                            'id' => json_encode($rutaOferta->id),
                             'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                         ];
                         Utils::sendFcmNotificationWithLocations($deviceToken, "Ruta Asignada", "Haz click para ver.", $data, 2);
@@ -201,7 +201,7 @@ class GenerarRutas extends Command
                         //echo print_r($locations, true);
                         if ($deviceToken) {
                             $data = [
-                                'id' => $rutaOferta->id,
+                                'id' => json_encode($rutaOferta->id),
                                 'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                             ];
 
@@ -253,7 +253,7 @@ class GenerarRutas extends Command
 
                         if ($deviceToken) {
                             $data = [
-                                'id' => $rutaOferta->id,
+                                'id' => json_encode($rutaOferta->id),
                                 'locations' => json_encode($locations), // Convertir las ubicaciones a JSON
                             ];
 
