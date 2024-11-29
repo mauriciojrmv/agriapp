@@ -14,6 +14,7 @@ class RutaCargaOferta extends Model
         'id_ruta_oferta',
         'id_transporte',
         'orden',
+        'cantidad',
         'estado',
         'estado_conductor',
         'distancia'
