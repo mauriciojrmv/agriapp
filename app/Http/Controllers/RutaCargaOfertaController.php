@@ -8,6 +8,8 @@ use App\Models\CargaOferta;
 use App\Models\RutaOferta;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\RecogidaConfirmada;
+use Illuminate\Support\Facades\Notification;
 
 class RutaCargaOfertaController extends Controller
 {
@@ -156,20 +158,25 @@ public function aceptarRuta(Request $request, $idRutaOferta)
         $rutaOferta->update(['estado' => 'en_proceso']);
 
         // Obtener las cargas asociadas y generar puntos
-        $cargas = RutaCargaOferta::where('id_ruta_oferta', $idRutaOferta)->with('cargaOferta')->get();
+        $cargas = RutaCargaOferta::where('id_ruta_oferta', $idRutaOferta)
+            ->with('cargaOferta.ofertaDetalle.produccion.terreno')
+            ->get();
 
         $orden = 1;
         foreach ($cargas as $carga) {
-            // Actualizar el estado de la carga
+            // Actualizar el estado de la carga asociada (CargaOferta)
             $carga->cargaOferta->update(['estado' => 'asignado']);
 
-            // Guardar los puntos automáticamente
-            $lat = $carga->cargaOferta->ofertaDetalle->produccion->terreno->ubicacion_latitud;
-            $lon = $carga->cargaOferta->ofertaDetalle->produccion->terreno->ubicacion_longitud;
+            // Obtener latitud y longitud del terreno asociado
+            $lat = $carga->cargaOferta->ofertaDetalle->produccion->terreno->ubicacion_latitud ?? 0;
+            $lon = $carga->cargaOferta->ofertaDetalle->produccion->terreno->ubicacion_longitud ?? 0;
 
+            // Actualizar la carga en RutaCargaOferta
             $carga->update([
                 'orden' => $orden,
-                'distancia' => 0, // Aquí puedes calcular distancias si es necesario
+                'distancia' => 0, // Puedes calcular aquí la distancia si tienes la lógica
+                'estado_conductor' => 'asignado', // Actualizar el estado del conductor
+                'estado' => 'en_proceso', // Actualizar el estado del cargo
             ]);
 
             $orden++;
@@ -191,9 +198,10 @@ public function aceptarRuta(Request $request, $idRutaOferta)
 public function confirmarRecogida(Request $request, $id)
 {
     try {
-        $rutaCargaOferta = RutaCargaOferta::with('cargaOferta.ofertaDetalle')->findOrFail($id);
+        // Cargar la RutaCargaOferta con relaciones necesarias
+        $rutaCargaOferta = RutaCargaOferta::with(['cargaOferta.ofertaDetalle'])->findOrFail($id);
 
-        // Validar el estado de la ruta antes de continuar
+        // Validar que el estado de la ruta sea "en_proceso"
         if ($rutaCargaOferta->estado !== 'en_proceso') {
             return response()->json([
                 'message' => 'La carga no está en estado de proceso para ser confirmada.'
@@ -203,37 +211,66 @@ public function confirmarRecogida(Request $request, $id)
         // Obtener la carga asociada
         $cargaOferta = $rutaCargaOferta->cargaOferta;
 
-        // Actualizar el estado de la carga a 'finalizado'
-        $cargaOferta->update(['estado' => 'finalizado']);
-
-        // Confirmar recogida y mantener estado de RutaCargaOferta
-        $rutaCargaOferta->update(['estado' => 'en_proceso']);
-
-        // Verificar si todas las cargas asociadas al pedido ya están finalizadas
-        $pedido = $cargaOferta->pedido; // Asegúrate de tener la relación configurada correctamente
-        if ($pedido) {
-            $cargasPendientes = $pedido->pedidoDetalles()->whereHas('cargaOfertas', function ($query) {
-                $query->where('estado', '!=', 'finalizado');
-            })->count();
-
-            if ($cargasPendientes === 0) {
-                // Todas las cargas del pedido están finalizadas; actualizar el estado del pedido
-                $pedido->update(['estado' => 'recogido']);
-            }
+        if (!$cargaOferta) {
+            return response()->json([
+                'message' => 'Carga asociada no encontrada en la ruta.'
+            ], 404);
         }
 
+        // Obtener el detalle de la oferta
+        $ofertaDetalle = $cargaOferta->ofertaDetalle;
+
+        if (!$ofertaDetalle) {
+            return response()->json([
+                'message' => 'Detalles de la oferta no encontrados para la carga.'
+            ], 404);
+        }
+
+        // Validar que la cantidad recogida no exceda las cantidades actuales
+        $cantidadRecogida = $rutaCargaOferta->cantidad;
+
+        if ($cantidadRecogida > $ofertaDetalle->cantidad_fisico) {
+            return response()->json([
+                'message' => 'La cantidad recogida excede la cantidad física disponible.'
+            ], 422);
+        }
+
+        if ($cantidadRecogida > $ofertaDetalle->cantidad_comprometido) {
+            return response()->json([
+                'message' => 'La cantidad recogida excede la cantidad comprometida.'
+            ], 422);
+        }
+
+        // Actualizar las cantidades en OfertaDetalle
+        $ofertaDetalle->cantidad_fisico -= $cantidadRecogida;
+        $ofertaDetalle->cantidad_comprometido -= $cantidadRecogida;
+        $ofertaDetalle->save();
+
+        // Actualizar el estado de CargaOferta a "finalizado"
+        $cargaOferta->update(['estado' => 'finalizado']);
+
+        // No cambiar el estado de RutaCargaOferta
+        // RutaCargaOferta permanece en "en_proceso" o el estado original
+
         return response()->json([
-            'message' => 'Recogida de la carga confirmada exitosamente.',
-            'rutaCargaOferta' => $rutaCargaOferta,
-            'cargaOferta' => $cargaOferta,
-            'pedido' => $pedido ?? null, // Retornar el pedido si existe
+            'message' => 'Recogida confirmada exitosamente.',
+            'rutaCargaOferta' => $rutaCargaOferta->refresh(), // Recargar para obtener datos actualizados
+            'cargaOferta' => $cargaOferta->refresh(), // Recargar para obtener datos actualizados
         ], 200);
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['message' => 'RutaCargaOferta o CargaOferta no encontrada.'], 404);
+
     } catch (\Exception $e) {
-        return response()->json(['message' => 'Error al confirmar la recogida.', 'error' => $e->getMessage()], 500);
+        return response()->json([
+            'message' => 'Error al confirmar la recogida.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
 }
+
+
+
+
+
+
 
 
 public function getPuntosRuta($idRutaOferta)
@@ -289,11 +326,11 @@ public function terminarRuta($idRutaOferta)
         // Cambiar el estado de las rutas de carga asociadas a finalizado
         $rutaOferta->rutaCargaOferta()->update(['estado' => 'finalizado']);
 
-        // Cambiar el estado del conductor asociado a pendiente
+        // Cambiar el estado del conductor asociado a activo
         foreach ($rutaOferta->rutaCargaOferta as $rutaCarga) {
             $transporte = $rutaCarga->transporte;
             if ($transporte && $transporte->conductor) {
-                $transporte->conductor->update(['estado' => 'pendiente']);
+                $transporte->conductor->update(['estado' => 'activo']);
             }
         }
 
