@@ -113,6 +113,8 @@ Route::prefix('v1')->group(function () {
     ->name('ruta_carga_ofertas.aceptarRuta');
     Route::put('ruta_carga_ofertas/{id}/terminar', [RutaCargaOfertaController::class, 'terminarRuta'])
     ->name('ruta_carga_ofertas.terminarRuta');
+    Route::put('ruta_carga_ofertas/{id}/cancelar', [RutaCargaOfertaController::class, 'cancelarRuta'])
+    ->name('ruta_carga_ofertas.cancelarRuta');
 
 
 

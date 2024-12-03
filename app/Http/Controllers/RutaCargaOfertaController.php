@@ -348,5 +348,46 @@ public function terminarRuta($idRutaOferta)
     }
 }
 
+public function cancelarRuta($idRutaOferta)
+{
+    try {
+        // Buscar la RutaOferta
+        $rutaOferta = RutaOferta::with('rutaCargaOferta.cargaOferta')->findOrFail($idRutaOferta);
+
+        // Validar que la ruta esté en estado 'en_proceso'
+        if ($rutaOferta->estado !== 'en_proceso') {
+            return response()->json(['message' => 'La ruta no se encuentra en estado en proceso, por lo que no se puede cancelar.'], 422);
+        }
+
+        // Revertir el estado de la RutaOferta a 'pendiente'
+        $rutaOferta->update(['estado' => 'pendiente']);
+
+        // Revertir el estado de las cargas asociadas
+        foreach ($rutaOferta->rutaCargaOferta as $rutaCarga) {
+            // Revertir el estado de la RutaCargaOferta
+            $rutaCarga->update([
+                'estado' => 'pendiente',
+                'estado_conductor' => 'pendiente',
+                'orden' => 0,
+                'distancia' => 0,
+            ]);
+
+            // Revertir el estado de la CargaOferta asociada
+            $cargaOferta = $rutaCarga->cargaOferta;
+            if ($cargaOferta) {
+                $cargaOferta->update(['estado' => 'pendiente']);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Ruta cancelada y estados revertidos correctamente.',
+            'ruta_oferta' => $rutaOferta,
+        ], 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Ruta no encontrada.'], 404);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al cancelar la ruta.', 'error' => $e->getMessage()], 500);
+    }
+}
 
 }
