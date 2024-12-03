@@ -12,6 +12,7 @@ use App\Models\CargaOferta;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
+
 class OfertaDetalleController extends Controller
 {
     // Obtener todos los detalles de ofertas
@@ -31,72 +32,57 @@ class OfertaDetalleController extends Controller
 
     // Crear un nuevo detalle de oferta
     public function store(Request $request)
-{
-    try {
-        // Validación de los datos de entrada
-        $request->validate([
-            'id_oferta' => 'required|exists:ofertas,id',
-            'id_unidadmedida' => 'required|exists:unidad_medidas,id',
-            'id_moneda' => 'required|exists:monedas,id',
-            'id_produccion' => 'required|exists:produccions,id',
-            'descripcion' => 'nullable|string|max:255',
-            'cantidad_fisico' => 'required|numeric|min:1',
-            'precio' => 'required|numeric|min:0',
-            'estado' => 'sometimes|required|string|in:activo,inactivo'
-        ], [
-            'id_oferta.required' => 'La oferta es obligatoria.',
-            'id_oferta.exists' => 'La oferta seleccionada no es válida.',
-            'id_unidadmedida.required' => 'La unidad de medida es obligatoria.',
-            'id_unidadmedida.exists' => 'La unidad de medida seleccionada no es válida.',
-            'id_moneda.required' => 'La moneda es obligatoria.',
-            'id_moneda.exists' => 'La moneda seleccionada no es válida.',
-            'id_produccion.required' => 'La producción es obligatoria.',
-            'id_produccion.exists' => 'La producción seleccionada no es válida.',
-            'descripcion.max' => 'La descripción no puede exceder 255 caracteres.',
-            'cantidad_fisico.required' => 'La cantidad física es obligatoria.',
-            'cantidad_fisico.numeric' => 'La cantidad física debe ser un número.',
-            'cantidad_fisico.min' => 'La cantidad física debe ser al menos 1.',
-            'precio.required' => 'El precio es obligatorio.',
-            'precio.numeric' => 'El precio debe ser un número.',
-            'precio.min' => 'El precio no puede ser negativo.',
-            'estado.in' => 'El campo estado solo puede tener los valores "activo" o "inactivo".'
-        ]);
+    {
+        try {
+            $request->validate([
+                'id_oferta' => 'required|exists:ofertas,id',
+                'id_unidadmedida' => 'required|exists:unidad_medidas,id',
+                'id_moneda' => 'required|exists:monedas,id',
+                'id_produccion' => 'required|exists:produccions,id',
+                'descripcion' => 'nullable|string|max:255',
+                'cantidad_fisico' => 'required|numeric|min:1',
+                'precio' => 'required|numeric|min:0',
+                'estado' => 'sometimes|string|max:255'
+            ], [
+                'id_oferta.required' => 'La oferta es obligatoria.',
+                'id_oferta.exists' => 'La oferta seleccionada no es válida.',
+                'id_unidadmedida.required' => 'La unidad de medida es obligatoria.',
+                'id_unidadmedida.exists' => 'La unidad de medida seleccionada no es válida.',
+                'id_moneda.required' => 'La moneda es obligatoria.',
+                'id_moneda.exists' => 'La moneda seleccionada no es válida.',
+                'id_produccion.required' => 'La producción es obligatoria.',
+                'id_produccion.exists' => 'La producción seleccionada no es válida.',
+                'descripcion.max' => 'La descripción no puede exceder 255 caracteres.',
+                'cantidad_fisico.required' => 'La cantidad física es obligatoria.',
+                'cantidad_fisico.numeric' => 'La cantidad física debe ser un número.',
+                'cantidad_fisico.min' => 'La cantidad física debe ser al menos 1.',
+                'precio.required' => 'El precio es obligatorio.',
+                'precio.numeric' => 'El precio debe ser un número.',
+                'precio.min' => 'El precio no puede ser negativo.',
+                'estado.max' => 'El estado no puede exceder 255 caracteres.'
+            ]);
 
-        // Obtener la oferta y la producción asociada
-        $oferta = Oferta::findOrFail($request->id_oferta);
-        $produccion = Produccion::findOrFail($request->id_produccion);
+            $oferta = Oferta::findOrFail($request->id_oferta);
+            $produccion = $oferta->produccion;
 
-        // Verificar si la cantidad ofertada no supera la cantidad disponible en la producción
-        $cantidadDisponible = $produccion->cantidad;
-        $cantidadOfertada = OfertaDetalle::where('id_produccion', $request->id_produccion)->sum('cantidad_fisico');
+            $cantidadDisponible = $produccion->cantidad;
+            $cantidadOfertada = OfertaDetalle::where('id_produccion', $request->id_produccion)->sum('cantidad_fisico');
 
-        // Verificar si la suma de lo ofertado no excede la cantidad disponible
-        if (($cantidadOfertada + $request->cantidad_fisico) > $cantidadDisponible) {
+            if (($cantidadOfertada + $request->cantidad_fisico) > $cantidadDisponible) {
+                return response()->json([
+                    'message' => 'La cantidad de la oferta supera la cantidad disponible en la producción.'
+                ], 422);
+            }
+
+            $detalle = OfertaDetalle::create($request->all());
+            return response()->json($detalle, 201);
+        } catch (ValidationException $e) {
             return response()->json([
-                'message' => 'La cantidad de la oferta supera la cantidad disponible en la producción.'
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
             ], 422);
         }
-
-        // Reducir la cantidad en la producción
-        $produccion->cantidad -= $request->cantidad_fisico;
-        $produccion->save();
-
-        // Crear el nuevo detalle de oferta
-        $detalle = OfertaDetalle::create($request->all());
-
-        return response()->json($detalle, 201);
-    } catch (ValidationException $e) {
-        return response()->json([
-            'message' => 'Error de validación',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Error al crear el OfertaDetalle.',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
 
 
     // Mostrar detalles de un detalle de oferta específico
