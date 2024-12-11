@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use App\Notifications\RecogidaConfirmada;
 use Illuminate\Support\Facades\Notification;
+use App\Helpers\Utils;
+
 
 class RutaCargaOfertaController extends Controller
 {
@@ -249,21 +251,43 @@ public function confirmarRecogida(Request $request, $id)
         // Actualizar el estado de CargaOferta a "finalizado"
         $cargaOferta->update(['estado' => 'finalizado']);
 
-        // No cambiar el estado de RutaCargaOferta
-        // RutaCargaOferta permanece en "en_proceso" o el estado original
+// Enviar notificación al agricultor
+$agricultor = $ofertaDetalle->produccion->terreno->agricultor;
+$deviceToken = $agricultor->tokendevice;
 
-        return response()->json([
-            'message' => 'Recogida confirmada exitosamente.',
-            'rutaCargaOferta' => $rutaCargaOferta->refresh(), // Recargar para obtener datos actualizados
-            'cargaOferta' => $cargaOferta->refresh(), // Recargar para obtener datos actualizados
-        ], 200);
+if ($deviceToken) {
+    $productoNombre = $ofertaDetalle->produccion->producto->nombre;
+    $data = [
+        "screen" => "CargaOfertaScreen", // Pantalla de redirección
+    ];
 
+    try {
+        Utils::sendFcmNotificationWithLocations(
+            $deviceToken,
+            "Carga Recogida Exitosamente",
+            "La carga de $productoNombre ha sido recogida. Haz clic para más detalles.",
+            $data,
+            1 // Prioridad alta
+        );
     } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Error al confirmar la recogida.',
-            'error' => $e->getMessage(),
-        ], 500);
+        \Illuminate\Support\Facades\Log::error("Error al enviar notificación: " . $e->getMessage());
+
     }
+}
+
+// Retornar la respuesta de éxito
+return response()->json([
+    'message' => 'Recogida confirmada exitosamente y notificación enviada.',
+    'rutaCargaOferta' => $rutaCargaOferta->refresh(),
+    'cargaOferta' => $cargaOferta->refresh(),
+], 200);
+
+} catch (\Exception $e) {
+return response()->json([
+    'message' => 'Error al confirmar la recogida.',
+    'error' => $e->getMessage(),
+], 500);
+}
 }
 
 
