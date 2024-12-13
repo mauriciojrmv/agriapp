@@ -27,6 +27,8 @@ class ConductoresSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
+
+               
                 'nombre' => 'Luis',
                 'apellido' => 'Martinez',
                 'carnet' => '87654321',
@@ -35,8 +37,8 @@ class ConductoresSeeder extends Seeder
                 'direccion' => 'Calle Monseñor Rivero 456',
                 'email' => 'luis.martinez@example.com',
                 'password' => bcrypt('password123'),
-                'ubicacion_latitud' => -17.783083,
-                'ubicacion_longitud' => -63.180147,
+                'ubicacion_latitud' =>  -17.510319938729676,
+                'ubicacion_longitud' =>  -63.16383706516486,
                 'estado' => 'activo',
                 'tipo' => 'recogo',
                 'created_at' => now(),
