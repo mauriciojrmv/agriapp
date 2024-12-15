@@ -8,7 +8,6 @@ use App\Models\CargaOferta;
 use App\Models\RutaOferta;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
-use App\Notifications\RecogidaConfirmada;
 use Illuminate\Support\Facades\Notification;
 use App\Helpers\Utils;
 
@@ -104,41 +103,6 @@ class RutaCargaOfertaController extends Controller
         }
     }
 
-    // Método para que el conductor acepte o rechace una carga
-/*    public function updateEstadoConductor(Request $request, $id)
-{
-    try {
-        $request->validate([
-            'estado_conductor' => 'required|in:aceptado,rechazado',
-        ], [
-            'estado_conductor.required' => 'El campo estado_conductor es obligatorio.',
-            'estado_conductor.in' => 'El estado_conductor debe ser "aceptado" o "rechazado".',
-        ]);
-
-        // Buscar la RutaCargaOferta por ID
-        $rutaCargaOferta = RutaCargaOferta::findOrFail($id);
-
-        // Actualizar el estado del conductor en RutaCargaOferta
-        $rutaCargaOferta->update(['estado_conductor' => $request->estado_conductor]);
-
-        // Si el estado es "aceptado", actualizar el estado de RutaCargaOferta y CargaOferta
-        if ($request->estado_conductor === 'aceptado') {
-            $rutaCargaOferta->update(['estado' => 'en_proceso']); // Cambiar el estado de RutaCargaOferta
-
-            $cargaOferta = CargaOferta::findOrFail($rutaCargaOferta->id_carga_oferta);
-            $cargaOferta->update(['estado' => 'asignado']); // Cambiar el estado de CargaOferta
-        }
-
-        return response()->json([
-            'message' => 'Estado del conductor y carga actualizados correctamente.',
-            'ruta_carga_oferta' => $rutaCargaOferta,
-        ], 200);
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['message' => 'RutaCargaOferta o CargaOferta no encontrada'], 404);
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Error al actualizar el estado.', 'error' => $e->getMessage()], 500);
-    }
-} */
 
 public function aceptarRuta(Request $request, $idRutaOferta)
 {
